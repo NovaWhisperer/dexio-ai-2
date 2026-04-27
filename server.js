@@ -1,8 +1,8 @@
 import app from "./src/app.js"
 
 import { PORT } from "./config/index.js"
+import { logger } from "./src/utils/logger.js"
 
 app.listen(PORT, () => {
-    console.log("Server is listenning on PORT", PORT)
+    logger.info("Server is listenning on PORT", {port: PORT})
 })
-
