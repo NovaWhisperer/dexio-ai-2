@@ -9,13 +9,22 @@ app.use(morgan("combined", { stream: { write: (message) => logger.http(message) 
 
 app.use(express.json())
 
+app.get("/health", (req, res) => {
+    res.status(200).json({
+        status: "ok",
+        timestamp: new Date().toISOString(),
+        uptime: process.uptime(),
+    })
+})
+
 app.use((req, res, next) => {
     const defaultError = Error("Route not found")
     defaultError.statusCode = 404
     next(defaultError)
 })
 
-
 app.use(errorHanler)
+
+
 
 export default app
