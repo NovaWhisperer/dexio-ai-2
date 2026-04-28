@@ -1,6 +1,6 @@
 import { NODE_ENV } from "../../config/index.js";
 
-const errorHanler = ((err, req, res, next) => {
+const errorHandler = ((err, req, res, next) => {
     let statusCode = err.statusCode
     let errMessage = err.message
     let stack = err.stack
@@ -17,4 +17,4 @@ const errorHanler = ((err, req, res, next) => {
     }
 })
 
-export { errorHanler }
+export { errorHandler }
