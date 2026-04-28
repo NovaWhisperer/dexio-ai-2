@@ -15,10 +15,13 @@
     "nodemon": "^3.1.14"
   },
   "dependencies": {
+    "bcryptjs": "^3.0.3",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
     "mongoose": "^9.5.0",
     "morgan": "^1.10.1",
-    "winston": "^3.19.0"
+    "nodemailer": "^8.0.7",
+    "winston": "^3.19.0",
+    "zod": "^4.3.6"
   }
 }

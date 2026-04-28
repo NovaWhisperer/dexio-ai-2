@@ -10,8 +10,6 @@ app.use(morgan("combined", { stream: { write: (message) => logger.http(message) 
 
 app.use(express.json())
 
-
-
 app.get("/health", (req, res) => {
     res.status(200).json({
         status: "ok",
