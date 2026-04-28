@@ -20,7 +20,6 @@ const startApplication = async (params) => {
         logger.info("Server is listenning on PORT", { port: PORT })
     })
 }
-
 startApplication()
 
 
