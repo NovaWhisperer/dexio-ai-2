@@ -2,6 +2,10 @@ import userModel from "../models/user.model.js"
 import bcrypt from "bcryptjs"
 import crypto from "crypto"
 import sendMailer from "../services/email.service.js"
+import jwt from "jsonwebtoken"
+import { JWT_SECRET, NODE_ENV } from "../../config/index.js"
+import cookie from "cookie-parser"
+
 
 const registerController = async (req, res, next) => {
     const { fullName, email, password } = req.data
@@ -69,9 +73,9 @@ const verifyEmailController = async (req, res, next) => {
                 message: "User email verified successfully"
             })
         }
-        else {  
+        else {
             return res.status(400).json({
-                message:"Token had expired. Register again"
+                message: "Token had expired. Register again"
             })
         }
     } catch (err) {
@@ -79,27 +83,66 @@ const verifyEmailController = async (req, res, next) => {
     }
 }
 
-const loginController = (req, res) => {
+const loginController = async (req, res, next) => {
+    try {
+        const { email, password } = req.body
+
+        const user = await userModel.findOne({ email })
+
+        if (!user) {
+            return res.status(404).json({
+                message: "User not found"
+            })
+        }
+
+        if (user.verified === false) {
+            return res.status(400).json({
+                message: "User not registered"
+            })
+        }
+
+        const checkPassword = await bcrypt.compare(password, user.password)
+
+        if (!checkPassword) {
+            return res.status(400).json({
+                message: "Invalid password"
+            })
+        }
+
+        const token = jwt.sign({ id: user._id, role: user.role }, JWT_SECRET, { expiresIn: "7d" })
+
+        res.cookie("token", token, { httpOnly: true, secure: (NODE_ENV === "production"), sameSite: "lax" })
+
+        return res.status(200).json({
+            message: "User login successfully"
+        })
+    } catch (err) {
+        next(err)
+    }
+}
+
+const logoutController = async (req, res, next) => {
+
+    res.clearCookie("token")
+
+    return res.status(200).json({
+        message: "User logout"
+    })
+}
+
+const googleController = async (req, res, next) => {
 
 }
 
-const logoutController = (req, res) => {
+const googleCallbackController = async (req, res, next) => {
 
 }
 
-const googleController = (req, res) => {
+const forgotPasswordController = async (req, res, next) => {
 
 }
 
-const googleCallbackController = (req, res) => {
-
-}
-
-const forgotPasswordController = (req, res) => {
-
-}
-
-const resetPasswordController = (req, res) => {
+const resetPasswordController = async (req, res, next) => {
 
 }
 

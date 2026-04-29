@@ -3,12 +3,15 @@ import { errorHandler } from "./middlewares/errorHandler.js"
 import morgan from "morgan"
 import { logger } from "./utils/logger.js"
 import authRoutes from "./routes/auth.route.js"
+import cookieParser from "cookie-parser"
 
 const app = express()
 
 app.use(morgan("combined", { stream: { write: (message) => logger.http(message) } }))
 
 app.use(express.json())
+
+app.use(cookieParser())
 
 app.get("/health", (req, res) => {
     res.status(200).json({

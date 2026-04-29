@@ -9,5 +9,10 @@ const registerSchema = zod.object({
     password: zod.string().min(8)
 })
 
-export { registerSchema }
+const loginSchema = zod.object({
+    email: zod.string().email(),
+    password: zod.string().min(8)
+})
+
+export { registerSchema, loginSchema }
 
