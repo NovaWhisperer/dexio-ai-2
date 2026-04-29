@@ -4,8 +4,11 @@ import morgan from "morgan"
 import { logger } from "./utils/logger.js"
 import authRoutes from "./routes/auth.route.js"
 import cookieParser from "cookie-parser"
+import helmet from "helmet"
 
 const app = express()
+
+app.use(helmet())
 
 app.use(morgan("combined", { stream: { write: (message) => logger.http(message) } }))
 
