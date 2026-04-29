@@ -1,18 +1,26 @@
-import zod from "zod"
+import { z } from "zod"
 
-const registerSchema = zod.object({
-    fullName: zod.object({
-        firstName: zod.string().min(1),
-        lastName: zod.string().min(1),
+const registerSchema = z.object({
+    fullName: z.object({
+        firstName: z.string().min(1),
+        lastName: z.string().min(1),
     }),
-    email: zod.string().email(),
-    password: zod.string().min(8)
+    email: z.email(),
+    password: z.string().min(8)
 })
 
-const loginSchema = zod.object({
-    email: zod.string().email(),
-    password: zod.string().min(8)
+const loginSchema = z.object({
+    email: z.email(),
+    password: z.string().min(8)
 })
 
-export { registerSchema, loginSchema }
+const forgotPasswordSchema = z.object({
+    email: z.email()
+});
+const resetPasswordSchema = z.object({
+    password: z.string().min(8)
+});
+
+
+export { registerSchema, loginSchema, forgotPasswordSchema, resetPasswordSchema }
 

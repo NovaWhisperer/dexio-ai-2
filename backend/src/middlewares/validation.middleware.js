@@ -1,5 +1,6 @@
 function validateRequest(anySchema) {
     return ((req, res, next) => {
+        // console.log("validating")
 
         let result = anySchema.safeParse(req.body)
         if (!result.success) {

@@ -8,23 +8,24 @@ import cookie from "cookie-parser"
 
 
 const registerController = async (req, res, next) => {
-    const { fullName, email, password } = req.data
-
-    const emailExists = await userModel.findOne({ email })
-
-    if (emailExists) {
-        return res.status(409).json({
-            message: "Email already exists"
-        })
-    }
-
-    const hashPassword = await bcrypt.hash(password, 10)
-
-    const verificationToken = crypto.randomBytes(32).toString('hex');
-
-    const verificationTokenExpiry = new Date().getTime() + 24 * 60 * 60 * 1000
 
     try {
+        const { fullName, email, password } = req.data
+
+        const emailExists = await userModel.findOne({ email })
+
+        if (emailExists) {
+            return res.status(409).json({
+                message: "Email already exists"
+            })
+        }
+
+        const hashPassword = await bcrypt.hash(password, 10)
+
+        const verificationToken = crypto.randomBytes(32).toString('hex');
+
+        const verificationTokenExpiry = new Date().getTime() + 24 * 60 * 60 * 1000
+
         const user = await userModel.create({
             fullName: {
                 firstName: fullName.firstName,
@@ -36,7 +37,7 @@ const registerController = async (req, res, next) => {
             verificationTokenExpiry
         })
 
-        sendMailer(email, "Verify your email", `http://localhost:3000/v1/auth/verify-email?token=${verificationToken}`)
+        await sendMailer(email, "Verify your email", `http://localhost:3000/v1/auth/verify-email?token=${verificationToken}`)
 
         res.status(201).json({
             message: "User created successfully"
@@ -122,12 +123,80 @@ const loginController = async (req, res, next) => {
 }
 
 const logoutController = async (req, res, next) => {
+    try {
+        res.clearCookie("token")
 
-    res.clearCookie("token")
+        return res.status(200).json({
+            message: "User logout"
+        })
 
-    return res.status(200).json({
-        message: "User logout"
-    })
+    } catch (err) {
+        next(err)
+    }
+}
+
+const forgotPasswordController = async (req, res, next) => {
+    try {
+        const { email } = req.body
+
+        const user = await userModel.findOne({ email })
+        if (!user) {
+            return res.status(400).json({
+                message: "Invalid Email"
+            })
+        }
+
+        const resetToken = crypto.randomBytes(32).toString('hex')
+
+        const resetTokenExpiry = new Date().getTime() + 10 * 60 * 1000
+
+        await userModel.findOneAndUpdate({ email }, { $set: { resetToken, resetTokenExpiry } })
+
+        await sendMailer(email, "Reset your password", `http://localhost:3000/v1/auth/reset-password?token=${resetToken}`)
+
+        // console.log(req.body)
+        return res.status(200).json({
+            message: "Password Reset link sent successfully"
+        })
+    } catch (err) {
+        next(err)
+    }
+}
+
+const resetPasswordController = async (req, res, next) => {
+    try {
+        const { token } = req.query
+
+        const user = await userModel.findOne({ resetToken: token })
+
+        if (!user) {
+            return res.status(400).json({
+                message: "Invalid token"
+            })
+        }
+
+
+        if (user.resetTokenExpiry < new Date().getTime()) {
+            return res.status(400).json({
+                message: "Reset token expired"
+            })
+        }
+
+        const { password } = req.body
+
+        const hashedPassword = await bcrypt.hash(password, 10)
+
+        user.password = hashedPassword
+        user.resetToken = undefined
+        user.resetTokenExpiry = undefined
+        await user.save()
+
+        res.status(200).json({
+            message: "Password reset successfully"
+        })
+    } catch (err) {
+        next(err)
+    }
 }
 
 const googleController = async (req, res, next) => {
@@ -138,13 +207,5 @@ const googleCallbackController = async (req, res, next) => {
 
 }
 
-const forgotPasswordController = async (req, res, next) => {
 
-}
-
-const resetPasswordController = async (req, res, next) => {
-
-}
-
-
-export { registerController, loginController, logoutController, verifyEmailController, googleController, googleCallbackController, forgotPasswordController, resetPasswordController }
+export { registerController, verifyEmailController, loginController, logoutController, forgotPasswordController, resetPasswordController, googleController, googleCallbackController }
