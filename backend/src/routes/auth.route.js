@@ -14,6 +14,6 @@ router.post("/forgot-password", validateRequest(forgotPasswordSchema), forgotPas
 router.post("/reset-password", validateRequest(resetPasswordSchema), resetPasswordController)
 router.get("/verify-email", verifyEmailController)
 router.get("/google", googleController)
-router.get("/google/callback", googleCallbackController)
+router.get("/google/callback", passport.authenticate("google"),googleCallbackController)
 
 export default router
