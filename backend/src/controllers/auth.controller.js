@@ -5,6 +5,7 @@ import sendMailer from "../services/email.service.js"
 import jwt from "jsonwebtoken"
 import { JWT_SECRET, NODE_ENV } from "../../config/index.js"
 import cookie from "cookie-parser"
+import passport from "passport"
 
 
 const registerController = async (req, res, next) => {
@@ -200,11 +201,23 @@ const resetPasswordController = async (req, res, next) => {
 }
 
 const googleController = async (req, res, next) => {
-
+    (passport.authenticate("google", { scope: ["profile"] }))(req, res, next)
 }
 
 const googleCallbackController = async (req, res, next) => {
+    try {
+        const user = req.user
 
+        const token = jwt.sign({ id: user._id, role: user.role }, JWT_SECRET, { expiresIn: "1d" })
+
+        res.cookie("token", token, { httpOnly: true, secure: (NODE_ENV === "production"), sameSite: "lax" })
+
+        res.status(200).json({
+            message: "User verified successfully"
+        })
+    } catch (err) {
+        next(err)
+    }
 }
 
 

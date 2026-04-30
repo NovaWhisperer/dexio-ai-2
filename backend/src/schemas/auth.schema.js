@@ -22,5 +22,6 @@ const resetPasswordSchema = z.object({
 });
 
 
+
 export { registerSchema, loginSchema, forgotPasswordSchema, resetPasswordSchema }
 

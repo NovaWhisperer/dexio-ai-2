@@ -5,6 +5,7 @@ import { logger } from "./utils/logger.js"
 import authRoutes from "./routes/auth.route.js"
 import cookieParser from "cookie-parser"
 import helmet from "helmet"
+import passport from "../config/google.strategy.js"
 
 const app = express()
 
@@ -15,6 +16,8 @@ app.use(morgan("combined", { stream: { write: (message) => logger.http(message) 
 app.use(express.json())
 
 app.use(cookieParser())
+
+app.use(passport.initialize())
 
 app.get("/health", (req, res) => {
     res.status(200).json({
