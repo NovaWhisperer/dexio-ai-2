@@ -8,7 +8,6 @@
 import jwt from "jsonwebtoken"
 import userModel from "../models/user.model.js"
 import { JWT_SECRET } from "../../config/index.js"
-import { error } from "winston"
 
 const authSystem = async (req, res, next) => {
     const cookie = req.cookies["token"]

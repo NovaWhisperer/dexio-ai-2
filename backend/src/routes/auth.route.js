@@ -4,6 +4,7 @@ import { registerController, loginController, logoutController, verifyEmailContr
 import { validateRequest } from "../middlewares/validation.middleware.js"
 import { forgotPasswordSchema, loginSchema, registerSchema, resetPasswordSchema } from "../schemas/auth.schema.js"
 import { authSystem } from "../middlewares/auth.middleware.js"
+import passport from "../../config/google.strategy.js"
 
 const router = express.Router()
 
