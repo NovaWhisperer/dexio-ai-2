@@ -4,6 +4,7 @@ function validateRequest(anySchema) {
 
         let result = anySchema.safeParse(req.body)
         if (!result.success) {
+            result.error.statusCode = 400
             next(result.error)
         } else {
             req.data = result.data
