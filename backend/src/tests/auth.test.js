@@ -7,8 +7,6 @@ import { JWT_SECRET } from "../../config/index.js"
 import jwt from "jsonwebtoken"
 import crypto from "crypto"
 
-
-
 jest.mock("../services/email.service.js", () => ({
     __esModule: true,
     default: jest.fn(),
