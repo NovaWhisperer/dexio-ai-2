@@ -58,26 +58,26 @@ describe("Auth Routes", () => {
         });
 
 
-        it('should return 500 missing field', async () => {
+        it('should return 400 missing field', async () => {
             const res = await request(app)
                 .post('/v1/auth/register')
                 .send({ fullName: { firstName: "testF", lastName: "testL" }, password: "Here89#1" })
                 .set('Accept', 'application/json')
                 .expect('Content-Type', /json/)
-                .expect(500)
+                .expect(400)
 
-            expect(res.status).toBe(500)
+            expect(res.status).toBe(400)
         });
 
-        it('should return 500 wrong password', async () => {
+        it('should return 400 wrong password', async () => {
             const res = await request(app)
                 .post('/v1/auth/register')
                 .send({ fullName: { firstName: "testF", lastName: "testL" }, email: "test@gmail.com", password: "Here891" })
                 .set('Accept', 'application/json')
                 .expect('Content-Type', /json/)
-                .expect(500)
+                .expect(400)
 
-            expect(res.status).toBe(500)
+            expect(res.status).toBe(400)
         });
     });
 
