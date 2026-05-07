@@ -36,7 +36,6 @@ describe("Auth Routes", () => {
             expect(res1.body.message).toBe("User created successfully")
         });
 
-
         it('should return 409 email exists', async () => {
             const res1 = await request(app)
                 .post('/v1/auth/register')
@@ -86,7 +85,7 @@ describe("Auth Routes", () => {
 
             const res1 = await request(app)
                 .post('/v1/auth/login')
-                .send({ email:"someotheremail@gmail.com",password:"somepass" })
+                .send({ email: "someotheremail@gmail.com", password: "somepass" })
                 .set('Accept', 'application/json')
                 .expect('Content-Type', /json/)
                 .expect(404)
@@ -120,7 +119,7 @@ describe("Auth Routes", () => {
                 fullName: { firstName: "testF", lastName: "testL" },
                 email: "testregister@gmail.com",
                 password: await bcrypt.hash("Here89#1", 10),
-                verified:true
+                verified: true
             })
 
             const res1 = await request(app)
@@ -134,7 +133,7 @@ describe("Auth Routes", () => {
             expect(res1.body.message).toBe("Invalid password")
         });
 
-        it('return 200 everything correct', async () => {
+        it('return 200 user login', async () => {
 
             const user = await userModel.create({
                 fullName: { firstName: "testF", lastName: "testL" },
@@ -155,6 +154,97 @@ describe("Auth Routes", () => {
         });
 
     })
+
+    describe('GET /v1/auth/verify-email', function () {
+
+        it('return 404 invalid token', async () => {
+
+            const user = await userModel.create({
+                fullName: { firstName: "testF", lastName: "testL" },
+                email: "testregister@gmail.com",
+                password: await bcrypt.hash("Here89#1", 10),
+                verified: false,
+                verificationTokenExpiry: new Date(Date.now() + 24 * 60 * 60 * 1000),
+                verificationToken: "testtoken123"
+            })
+
+            const res1 = await request(app)
+                .get('/v1/auth/verify-email')
+                .query({ token: "wrongtoken123" })
+                .set('Accept', 'application/json')
+                .expect('Content-Type', /json/)
+                .expect(404)
+
+            expect(res1.status).toBe(404)
+            expect(res1.body.message).toBe("Invalid Token")
+        });
+
+        it('return 200 verified true', async () => {
+            const user = await userModel.create({
+                fullName: { firstName: "testF", lastName: "testL" },
+                email: "testregister@gmail.com",
+                password: await bcrypt.hash("Here89#1", 10),
+                verified: true,
+                verificationTokenExpiry: new Date(Date.now() + 24 * 60 * 60 * 1000),
+                verificationToken: "testtoken123"
+            })
+
+            const res1 = await request(app)
+                .get('/v1/auth/verify-email')
+                .query({ token: "testtoken123" })
+                .set('Accept', 'application/json')
+                .expect('Content-Type', /json/)
+                .expect(200)
+
+            expect(res1.status).toBe(200)
+            expect(res1.body.message).toBe("User already verified")
+        });
+
+        it('return 200 user verified', async () => {
+
+            const user = await userModel.create({
+                fullName: { firstName: "testF", lastName: "testL" },
+                email: "testregister@gmail.com",
+                password: await bcrypt.hash("Here89#1", 10),
+                verified: false,
+                verificationTokenExpiry: new Date(Date.now() + 24 * 60 * 60 * 1000),
+                verificationToken: "testtoken123"
+            })
+
+            const res1 = await request(app)
+                .get('/v1/auth/verify-email')
+                .query({ token: "testtoken123" })
+                .set('Accept', 'application/json')
+                .expect('Content-Type', /json/)
+                .expect(200)
+
+            expect(res1.status).toBe(200)
+            expect(res1.body.message).toBe("User email verified successfully")
+        });
+
+        it('return 400 invalid token', async () => {
+
+            const user = await userModel.create({
+                fullName: { firstName: "testF", lastName: "testL" },
+                email: "testregister@gmail.com",
+                password: await bcrypt.hash("Here89#1", 10),
+                verified: false,
+                verificationTokenExpiry: new Date(Date.now() - 24 * 60 * 60 * 1000),
+                verificationToken: "testtoken123"
+            })
+
+            const res1 = await request(app)
+                .get('/v1/auth/verify-email')
+                .query({ token: "testtoken123" })
+                .set('Accept', 'application/json')
+                .expect('Content-Type', /json/)
+                .expect(400)
+
+            expect(res1.status).toBe(400)
+            expect(res1.body.message).toBe("Token had expired. Register again")
+        });
+    })
+    
 })
 
 
