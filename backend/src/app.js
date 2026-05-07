@@ -1,5 +1,5 @@
 import express from "express"
-import { errorHandler } from "./middlewares/errorHandler.js"
+import { errorHandler } from "./middlewares/errorHandler.middleware.js"
 import morgan from "morgan"
 import { logger } from "./utils/logger.js"
 import authRoutes from "./routes/auth.route.js"
