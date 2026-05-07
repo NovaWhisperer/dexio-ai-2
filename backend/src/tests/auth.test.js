@@ -5,6 +5,7 @@ import userModel from "../models/user.model.js"
 import bcrypt from "bcryptjs"
 import { JWT_SECRET } from "../../config/index.js"
 import jwt from "jsonwebtoken"
+import crypto from "crypto"
 
 
 jest.mock("../services/email.service.js", () => ({
@@ -269,18 +270,51 @@ describe("Auth Routes", () => {
             expect(res.body.message).toBe("User logout successfully")
         });
 
-
-         it('return 500 for no cookie', async () => {
+        it('return 500 for no cookie', async () => {
             const res = await request(app)
                 .post('/v1/auth/logout')
                 .expect('Content-Type', /json/)
                 .expect(500)
-                
+
             expect(res.status).toBe(500)
+        });
+    });
+
+    describe('POST /v1/auth/forgot-password', function () {
+        it('should return 200 user not found', async () => {
+            const res = await request(app)
+                .post('/v1/auth/forgot-password')
+                .send({email: "testnotfound@gmail.com"})
+                .set('Accept', 'application/json')
+                .expect('Content-Type', /json/)
+                .expect(200)
+
+            expect(res.status).toBe(200)
+            expect(res.body.message).toBe("Password reset link sent successfully")
+        });
+
+        it('should return 200 forget password link send successfully', async () => {
+
+            const user = await userModel.create({
+                fullName: { firstName: "testF", lastName: "testL" },
+                email: "test@gmail.com",
+                password: await bcrypt.hash("Here89#1", 10)
+            })
+
+            const res = await request(app)
+                .post('/v1/auth/forgot-password')
+                .send({email: "test@gmail.com"})
+                .set('Accept', 'application/json')
+                .expect('Content-Type', /json/)
+                .expect(200)
+
+            expect(res.status).toBe(200)
+            expect(res.body.message).toBe("Password reset link sent successfully")
         });
 
     });
 
+    
 })
 
 
