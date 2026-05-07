@@ -8,6 +8,7 @@ import jwt from "jsonwebtoken"
 import crypto from "crypto"
 
 
+
 jest.mock("../services/email.service.js", () => ({
     __esModule: true,
     default: jest.fn(),
@@ -284,7 +285,7 @@ describe("Auth Routes", () => {
         it('should return 200 user not found', async () => {
             const res = await request(app)
                 .post('/v1/auth/forgot-password')
-                .send({email: "testnotfound@gmail.com"})
+                .send({ email: "testnotfound@gmail.com" })
                 .set('Accept', 'application/json')
                 .expect('Content-Type', /json/)
                 .expect(200)
@@ -303,7 +304,7 @@ describe("Auth Routes", () => {
 
             const res = await request(app)
                 .post('/v1/auth/forgot-password')
-                .send({email: "test@gmail.com"})
+                .send({ email: "test@gmail.com" })
                 .set('Accept', 'application/json')
                 .expect('Content-Type', /json/)
                 .expect(200)
@@ -314,7 +315,62 @@ describe("Auth Routes", () => {
 
     });
 
-    
+    describe('POST /v1/auth/reset-password', function () {
+        it('should return 400 invalid token', async () => {
+            const res = await request(app)
+                .post('/v1/auth/reset-password')
+                .send({ password: "resetpass123" })
+                .query({ token: "wrongtoken123" })
+                .expect('Content-Type', /json/)
+                .expect(400)
+
+            expect(res.status).toBe(400)
+            expect(res.body.message).toBe("Invalid token")
+        });
+
+        it('should return 400 reset expiry time exceeded ', async () => {
+            const user = await userModel.create({
+                fullName: { firstName: "testF", lastName: "testL" },
+                email: "test@gmail.com",
+                password: await bcrypt.hash("Here89#1", 10),
+                resetToken: "resettoken",
+                resetTokenExpiry: new Date(Date.now() - 24 * 60 * 60 * 1000),
+            })
+
+            const res = await request(app)
+                .post('/v1/auth/reset-password')
+                .send({ password: "resetpass123" })
+                .query({ token: "resettoken" })
+                .set('Accept', 'application/json')
+                .expect('Content-Type', /json/)
+                .expect(400)
+
+            expect(res.status).toBe(400)
+            expect(res.body.message).toBe("Reset token expired")
+        });
+
+        it('should return 200 password reset successfully', async () => {
+            const user = await userModel.create({
+                fullName: { firstName: "testF", lastName: "testL" },
+                email: "test@gmail.com",
+                password: await bcrypt.hash("Here89#1", 10),
+                resetToken: "resettoken",
+                resetTokenExpiry: new Date(Date.now() + 24 * 60 * 60 * 1000),
+
+            })
+
+            const res = await request(app)
+                .post('/v1/auth/reset-password')
+                .send({ password: "resetpass123" })
+                .query({ token: "resettoken" })
+                .set('Accept', 'application/json')
+                .expect('Content-Type', /json/)
+                .expect(200)
+
+            expect(res.status).toBe(200)
+            expect(res.body.message).toBe("Password reset successfully")
+        });
+    });
 })
 
 
