@@ -142,8 +142,8 @@ const forgotPasswordController = async (req, res, next) => {
 
         const user = await userModel.findOne({ email })
         if (!user) {
-            return res.status(400).json({
-                message: "Invalid Email"
+            return res.status(200).json({
+                message: "Password reset link sent successfully"
             })
         }
 
@@ -157,7 +157,7 @@ const forgotPasswordController = async (req, res, next) => {
 
         // console.log(req.body)
         return res.status(200).json({
-            message: "Password Reset link sent successfully"
+            message: "Password reset link sent successfully"
         })
     } catch (err) {
         next(err)
