@@ -14,13 +14,15 @@ const userSchema = new mongoose.Schema({
     email: {
         type: String,
         required: true,
-        unique: true
+        unique: true,
+        index:true
     },
     password: {
         type: String,
     },
     googleID: {
         type: String,
+        index:true
     },
     verified: {
         type: Boolean,
@@ -29,6 +31,7 @@ const userSchema = new mongoose.Schema({
 
     verificationToken: {
         type: String,
+        index:true
 
     },
     verificationTokenExpiry: {
@@ -37,6 +40,7 @@ const userSchema = new mongoose.Schema({
     },
     resetToken: {
         type: String,
+        index:true
     },
     resetTokenExpiry: {
         type: Date,
