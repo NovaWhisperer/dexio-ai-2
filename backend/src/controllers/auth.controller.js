@@ -77,7 +77,7 @@ const verifyEmailController = async (req, res, next) => {
         }
 
         if (user.verified === true) {
-            return res.status(200).json({
+            return res.status(400).json({
                 success: true,
                 data: { message: "User already verified" },
                 error: null

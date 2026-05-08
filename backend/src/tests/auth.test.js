@@ -192,7 +192,7 @@ describe("Auth Routes", () => {
             expect(res.body.error).toBe("Invalid Token")
         });
 
-        it('return 200 verified true', async () => {
+        it('return 400 verified true', async () => {
             const user = await userModel.create({
                 fullName: { firstName: "testF", lastName: "testL" },
                 email: "testregister@gmail.com",
@@ -207,9 +207,9 @@ describe("Auth Routes", () => {
                 .query({ token: "testtoken123" })
                 .set('Accept', 'application/json')
                 .expect('Content-Type', /json/)
-                .expect(200)
+                .expect(400)
 
-            expect(res.status).toBe(200)
+            expect(res.status).toBe(400)
             expect(res.body.data.message).toBe("User already verified")
         });
 
