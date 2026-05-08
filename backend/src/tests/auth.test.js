@@ -269,13 +269,13 @@ describe("Auth Routes", () => {
             expect(res.body.data.message).toBe("User logout successfully")
         });
 
-        it('return 500 for no cookie', async () => {
+        it('return 401 for no cookie', async () => {
             const res = await request(app)
                 .post('/v1/auth/logout')
                 .expect('Content-Type', /json/)
-                .expect(500)
+                .expect(401)
 
-            expect(res.status).toBe(500)
+            expect(res.status).toBe(401)
         });
     });
 
