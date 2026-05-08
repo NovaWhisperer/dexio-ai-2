@@ -159,6 +159,17 @@ describe("Auth Routes", () => {
 
     describe('GET /v1/auth/verify-email', function () {
 
+        it('return 400 token not found', async () => {
+            const res = await request(app)
+                .get('/v1/auth/verify-email')
+                .set('Accept', 'application/json')
+                .expect('Content-Type', /json/)
+                .expect(400)
+
+            expect(res.status).toBe(400)
+            expect(res.body.error).toBe("Token not found")
+        });
+
         it('return 404 invalid token', async () => {
 
             const user = await userModel.create({

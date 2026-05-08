@@ -57,6 +57,15 @@ const verifyEmailController = async (req, res, next) => {
 
     try {
         const { token } = req.query;
+
+        if (!token) {
+            return res.status(400).json({
+                success: false,
+                data: null,
+                error: "Token not found"
+            })
+        }
+
         const user = await userModel.findOne({ verificationToken: token })
 
         if (!user) {
