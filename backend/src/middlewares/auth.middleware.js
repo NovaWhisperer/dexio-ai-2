@@ -27,7 +27,9 @@ const requireRole = (roles) => {
                 next()
             }
             else {
-                next(new Error("Unauthorized role"))
+                const err = new Error("Unauthorized role")
+                err.statusCode = 403
+                next(err)
             }
         } catch (err) {
             next(err)
