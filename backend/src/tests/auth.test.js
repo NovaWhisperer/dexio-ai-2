@@ -35,7 +35,7 @@ describe("Auth Routes", () => {
                 .expect(201)
 
             expect(res.status).toBe(201)
-            expect(res.body.message).toBe("User created successfully")
+            expect(res.body.data.message).toBe("User created successfully")
         });
 
         it('should return 409 email exists', async () => {
@@ -54,7 +54,7 @@ describe("Auth Routes", () => {
                 .expect(409)
 
             expect(res2.status).toBe(409)
-            expect(res2.body.message).toBe("Email already exists")
+            expect(res2.body.error).toBe("Email already exists")
         });
 
 
@@ -93,7 +93,7 @@ describe("Auth Routes", () => {
                 .expect(404)
 
             expect(res.status).toBe(404)
-            expect(res.body.message).toBe("User not found")
+            expect(res.body.error).toBe("User not found")
         });
 
         it('return 400 user found but not verified', async () => {
@@ -112,7 +112,7 @@ describe("Auth Routes", () => {
                 .expect(400)
 
             expect(res.status).toBe(400)
-            expect(res.body.message).toBe("User not registered")
+            expect(res.body.error).toBe("User not registered")
         });
 
         it('return 400 password does not match', async () => {
@@ -132,7 +132,7 @@ describe("Auth Routes", () => {
                 .expect(400)
 
             expect(res.status).toBe(400)
-            expect(res.body.message).toBe("Invalid password")
+            expect(res.body.error).toBe("Invalid password")
         });
 
         it('return 200 user login', async () => {
@@ -152,7 +152,7 @@ describe("Auth Routes", () => {
                 .expect(200)
 
             expect(res.status).toBe(200)
-            expect(res.body.message).toBe("User login successfully")
+            expect(res.body.data.message).toBe("User login successfully")
         });
 
     })
@@ -178,7 +178,7 @@ describe("Auth Routes", () => {
                 .expect(404)
 
             expect(res.status).toBe(404)
-            expect(res.body.message).toBe("Invalid Token")
+            expect(res.body.error).toBe("Invalid Token")
         });
 
         it('return 200 verified true', async () => {
@@ -199,7 +199,7 @@ describe("Auth Routes", () => {
                 .expect(200)
 
             expect(res.status).toBe(200)
-            expect(res.body.message).toBe("User already verified")
+            expect(res.body.data.message).toBe("User already verified")
         });
 
         it('return 200 user verified', async () => {
@@ -221,7 +221,7 @@ describe("Auth Routes", () => {
                 .expect(200)
 
             expect(res.status).toBe(200)
-            expect(res.body.message).toBe("User email verified successfully")
+            expect(res.body.data.message).toBe("User email verified successfully")
         });
 
         it('return 400 invalid token', async () => {
@@ -243,7 +243,7 @@ describe("Auth Routes", () => {
                 .expect(400)
 
             expect(res.status).toBe(400)
-            expect(res.body.message).toBe("Token had expired. Register again")
+            expect(res.body.error).toBe("Token had expired. Register again")
         });
     })
 
@@ -266,7 +266,7 @@ describe("Auth Routes", () => {
                 .expect(200)
 
             expect(res.status).toBe(200)
-            expect(res.body.message).toBe("User logout successfully")
+            expect(res.body.data.message).toBe("User logout successfully")
         });
 
         it('return 500 for no cookie', async () => {
@@ -289,7 +289,7 @@ describe("Auth Routes", () => {
                 .expect(200)
 
             expect(res.status).toBe(200)
-            expect(res.body.message).toBe("Password reset link sent successfully")
+            expect(res.body.data.message).toBe("Password reset link sent successfully")
         });
 
         it('should return 200 forget password link send successfully', async () => {
@@ -308,7 +308,7 @@ describe("Auth Routes", () => {
                 .expect(200)
 
             expect(res.status).toBe(200)
-            expect(res.body.message).toBe("Password reset link sent successfully")
+            expect(res.body.data.message).toBe("Password reset link sent successfully")
         });
 
     });
@@ -323,7 +323,7 @@ describe("Auth Routes", () => {
                 .expect(400)
 
             expect(res.status).toBe(400)
-            expect(res.body.message).toBe("Invalid token")
+            expect(res.body.error).toBe("Invalid token")
         });
 
         it('should return 400 reset expiry time exceeded ', async () => {
@@ -344,7 +344,7 @@ describe("Auth Routes", () => {
                 .expect(400)
 
             expect(res.status).toBe(400)
-            expect(res.body.message).toBe("Reset token expired")
+            expect(res.body.error).toBe("Reset token expired")
         });
 
         it('should return 200 password reset successfully', async () => {
@@ -366,7 +366,7 @@ describe("Auth Routes", () => {
                 .expect(200)
 
             expect(res.status).toBe(200)
-            expect(res.body.message).toBe("Password reset successfully")
+            expect(res.body.data.message).toBe("Password reset successfully")
         });
     });
 })

@@ -17,7 +17,9 @@ const registerController = async (req, res, next) => {
 
         if (emailExists) {
             return res.status(409).json({
-                message: "Email already exists"
+                success: false,
+                data: null,
+                error: "Email already exists"
             })
         }
 
@@ -41,7 +43,9 @@ const registerController = async (req, res, next) => {
         await sendMailer(email, "Verify your email", `http://localhost:3000/v1/auth/verify-email?token=${verificationToken}`)
 
         res.status(201).json({
-            message: "User created successfully"
+            success: true,
+            data: { message: "User created successfully" },
+            error: null
         })
 
     } catch (err) {
@@ -57,13 +61,17 @@ const verifyEmailController = async (req, res, next) => {
 
         if (!user) {
             return res.status(404).json({
-                message: "Invalid Token"
+                success: false,
+                data: null,
+                error: "Invalid Token"
             })
         }
 
         if (user.verified === true) {
             return res.status(200).json({
-                message: "User already verified"
+                success: true,
+                data: { message: "User already verified" },
+                error: null
             })
         }
 
@@ -72,12 +80,16 @@ const verifyEmailController = async (req, res, next) => {
             await userModel.findOneAndUpdate({ verificationToken: token }, { $set: { verified: true } })
 
             return res.status(200).json({
-                message: "User email verified successfully"
+                success: true,
+                data: { message: "User email verified successfully" },
+                error: null
             })
         }
         else {
             return res.status(400).json({
-                message: "Token had expired. Register again"
+                success: false,
+                data: null,
+                error: "Token had expired. Register again"
             })
         }
     } catch (err) {
@@ -87,19 +99,23 @@ const verifyEmailController = async (req, res, next) => {
 
 const loginController = async (req, res, next) => {
     try {
-        const { email, password } = req.body
+        const { email, password } = req.data
 
         const user = await userModel.findOne({ email })
 
         if (!user) {
             return res.status(404).json({
-                message: "User not found"
+                success: false,
+                data: null,
+                error: "User not found"
             })
         }
 
         if (user.verified === false) {
             return res.status(400).json({
-                message: "User not registered"
+                success: false,
+                data: null,
+                error: "User not registered"
             })
         }
 
@@ -107,7 +123,9 @@ const loginController = async (req, res, next) => {
 
         if (!checkPassword) {
             return res.status(400).json({
-                message: "Invalid password"
+                success: false,
+                data: null,
+                error: "Invalid password"
             })
         }
 
@@ -116,7 +134,9 @@ const loginController = async (req, res, next) => {
         res.cookie("token", token, { httpOnly: true, secure: (NODE_ENV === "production"), sameSite: "lax" })
 
         return res.status(200).json({
-            message: "User login successfully"
+            success: true,
+            data: { message: "User login successfully" },
+            error: null
         })
     } catch (err) {
         next(err)
@@ -128,7 +148,9 @@ const logoutController = async (req, res, next) => {
         res.clearCookie("token")
 
         return res.status(200).json({
-            message: "User logout successfully"
+            success: true,
+            data: { message: "User logout successfully" },
+            error: null
         })
 
     } catch (err) {
@@ -143,7 +165,9 @@ const forgotPasswordController = async (req, res, next) => {
         const user = await userModel.findOne({ email })
         if (!user) {
             return res.status(200).json({
-                message: "Password reset link sent successfully"
+                success: true,
+                data: { message: "Password reset link sent successfully" },
+                error: null
             })
         }
 
@@ -155,9 +179,10 @@ const forgotPasswordController = async (req, res, next) => {
 
         await sendMailer(email, "Reset your password", `http://localhost:3000/v1/auth/reset-password?token=${resetToken}`)
 
-        // console.log(req.body)
         return res.status(200).json({
-            message: "Password reset link sent successfully"
+            success: true,
+            data: { message: "Password reset link sent successfully" },
+            error: null
         })
     } catch (err) {
         next(err)
@@ -172,14 +197,18 @@ const resetPasswordController = async (req, res, next) => {
 
         if (!user) {
             return res.status(400).json({
-                message: "Invalid token"
+                success: false,
+                data: null,
+                error: "Invalid token"
             })
         }
 
 
         if (user.resetTokenExpiry < new Date().getTime()) {
             return res.status(400).json({
-                message: "Reset token expired"
+                success: false,
+                data: null,
+                error: "Reset token expired"
             })
         }
 
@@ -193,7 +222,9 @@ const resetPasswordController = async (req, res, next) => {
         await user.save()
 
         res.status(200).json({
-            message: "Password reset successfully"
+            success: true,
+            data: { message: "Password reset successfully" },
+            error: null
         })
     } catch (err) {
         next(err)
@@ -213,7 +244,9 @@ const googleCallbackController = async (req, res, next) => {
         res.cookie("token", token, { httpOnly: true, secure: (NODE_ENV === "production"), sameSite: "lax" })
 
         res.status(200).json({
-            message: "User verified successfully"
+            success: true,
+            data: { message: "User verified successfully" },
+            error: null
         })
     } catch (err) {
         next(err)
