@@ -253,6 +253,12 @@ const googleCallbackController = async (req, res, next) => {
     try {
         const user = req.user
 
+        if (!user) {
+            const defaultError = Error("Authentication failed")
+            defaultError.statusCode = 401
+            return next(defaultError)
+        }
+
         const token = jwt.sign({ id: user._id, role: user.role }, JWT_SECRET, { expiresIn: "1d" })
 
         res.cookie("token", token, { httpOnly: true, secure: (NODE_ENV === "production"), sameSite: "lax" })
