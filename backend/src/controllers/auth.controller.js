@@ -40,7 +40,12 @@ const registerController = async (req, res, next) => {
             verificationTokenExpiry
         })
 
-        await sendMailer(email, "Verify your email", `http://localhost:3000/v1/auth/verify-email?token=${verificationToken}`)
+        try {
+            await sendMailer(email, "Verify your email", `http://localhost:3000/v1/auth/verify-email?token=${verificationToken}`)
+        } catch (err) {
+            await userModel.deleteOne({ email })
+            return next(err)
+        }
 
         res.status(201).json({
             success: true,
