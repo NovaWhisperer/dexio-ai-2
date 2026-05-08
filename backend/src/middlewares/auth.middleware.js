@@ -1,10 +1,3 @@
-// Get the token from the cookie
-// Verify and decrypt it with JWT
-// Extract the user id and role from the payload
-// Check if the role is allowed for that route
-// If yes — call next()
-// If no — return an error
-
 import jwt from "jsonwebtoken"
 import userModel from "../models/user.model.js"
 import { JWT_SECRET } from "../../config/index.js"
