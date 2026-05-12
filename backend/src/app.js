@@ -6,6 +6,8 @@ import authRoutes from "./routes/auth.route.js"
 import cookieParser from "cookie-parser"
 import helmet from "helmet"
 import passport from "../config/google.strategy.js"
+import chatRoutes from "./routes/chat.route.js"
+import messageRoutes from "./routes/message.route.js"
 
 const app = express()
 
@@ -28,6 +30,8 @@ app.get("/health", (req, res) => {
 })
 
 app.use("/v1/auth", authRoutes)
+app.use("/v1/chat", chatRoutes)
+app.use("/v1/message", messageRoutes)
 
 app.use((req, res, next) => {
     const defaultError = Error("Route not found")
