@@ -1,5 +1,6 @@
 import express from "express"
 import { authSystem } from "../middlewares/auth.middleware.js"
+import { messageCreateController, messageDeleteController, messageReadController, messageUpdateController } from "../controllers/message.controller.js"
 
 const router = express.Router()
 
