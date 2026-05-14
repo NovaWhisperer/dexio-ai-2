@@ -34,7 +34,6 @@ describe("Auth Routes", () => {
                 .expect('Content-Type', /json/)
                 .expect(201)
 
-            expect(res.status).toBe(201)
             expect(res.body.data.message).toBe("User created successfully")
         });
 
@@ -66,7 +65,6 @@ describe("Auth Routes", () => {
                 .expect('Content-Type', /json/)
                 .expect(400)
 
-            expect(res.status).toBe(400)
         });
 
         it('should return 400 wrong password', async () => {
@@ -77,7 +75,6 @@ describe("Auth Routes", () => {
                 .expect('Content-Type', /json/)
                 .expect(400)
 
-            expect(res.status).toBe(400)
         });
     });
 
@@ -92,7 +89,6 @@ describe("Auth Routes", () => {
                 .expect('Content-Type', /json/)
                 .expect(404)
 
-            expect(res.status).toBe(404)
             expect(res.body.error).toBe("User not found")
         });
 
@@ -111,7 +107,6 @@ describe("Auth Routes", () => {
                 .expect('Content-Type', /json/)
                 .expect(400)
 
-            expect(res.status).toBe(400)
             expect(res.body.error).toBe("User not registered")
         });
 
@@ -131,7 +126,6 @@ describe("Auth Routes", () => {
                 .expect('Content-Type', /json/)
                 .expect(400)
 
-            expect(res.status).toBe(400)
             expect(res.body.error).toBe("Invalid password")
         });
 
@@ -151,7 +145,6 @@ describe("Auth Routes", () => {
                 .expect('Content-Type', /json/)
                 .expect(200)
 
-            expect(res.status).toBe(200)
             expect(res.body.data.message).toBe("User login successfully")
         });
 
@@ -166,7 +159,6 @@ describe("Auth Routes", () => {
                 .expect('Content-Type', /json/)
                 .expect(400)
 
-            expect(res.status).toBe(400)
             expect(res.body.error).toBe("Token not found")
         });
 
@@ -188,7 +180,6 @@ describe("Auth Routes", () => {
                 .expect('Content-Type', /json/)
                 .expect(404)
 
-            expect(res.status).toBe(404)
             expect(res.body.error).toBe("Invalid Token")
         });
 
@@ -209,7 +200,6 @@ describe("Auth Routes", () => {
                 .expect('Content-Type', /json/)
                 .expect(400)
 
-            expect(res.status).toBe(400)
             expect(res.body.data.message).toBe("User already verified")
         });
 
@@ -231,7 +221,6 @@ describe("Auth Routes", () => {
                 .expect('Content-Type', /json/)
                 .expect(200)
 
-            expect(res.status).toBe(200)
             expect(res.body.data.message).toBe("User email verified successfully")
         });
 
@@ -253,7 +242,6 @@ describe("Auth Routes", () => {
                 .expect('Content-Type', /json/)
                 .expect(400)
 
-            expect(res.status).toBe(400)
             expect(res.body.error).toBe("Token had expired. Register again")
         });
     })
@@ -276,7 +264,6 @@ describe("Auth Routes", () => {
                 .expect('Content-Type', /json/)
                 .expect(200)
 
-            expect(res.status).toBe(200)
             expect(res.body.data.message).toBe("User logout successfully")
         });
 
@@ -286,7 +273,6 @@ describe("Auth Routes", () => {
                 .expect('Content-Type', /json/)
                 .expect(401)
 
-            expect(res.status).toBe(401)
         });
     });
 
@@ -299,7 +285,6 @@ describe("Auth Routes", () => {
                 .expect('Content-Type', /json/)
                 .expect(200)
 
-            expect(res.status).toBe(200)
             expect(res.body.data.message).toBe("Password reset link sent successfully")
         });
 
@@ -318,7 +303,6 @@ describe("Auth Routes", () => {
                 .expect('Content-Type', /json/)
                 .expect(200)
 
-            expect(res.status).toBe(200)
             expect(res.body.data.message).toBe("Password reset link sent successfully")
         });
 
@@ -333,7 +317,6 @@ describe("Auth Routes", () => {
                 .expect('Content-Type', /json/)
                 .expect(400)
 
-            expect(res.status).toBe(400)
             expect(res.body.error).toBe("Invalid token")
         });
 
@@ -354,7 +337,6 @@ describe("Auth Routes", () => {
                 .expect('Content-Type', /json/)
                 .expect(400)
 
-            expect(res.status).toBe(400)
             expect(res.body.error).toBe("Reset token expired")
         });
 
@@ -376,7 +358,6 @@ describe("Auth Routes", () => {
                 .expect('Content-Type', /json/)
                 .expect(200)
 
-            expect(res.status).toBe(200)
             expect(res.body.data.message).toBe("Password reset successfully")
         });
     });
