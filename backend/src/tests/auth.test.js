@@ -52,10 +52,8 @@ describe("Auth Routes", () => {
                 .expect('Content-Type', /json/)
                 .expect(409)
 
-            expect(res2.status).toBe(409)
             expect(res2.body.error).toBe("Email already exists")
         });
-
 
         it('should return 400 missing field', async () => {
             const res = await request(app)
@@ -64,7 +62,6 @@ describe("Auth Routes", () => {
                 .set('Accept', 'application/json')
                 .expect('Content-Type', /json/)
                 .expect(400)
-
         });
 
         it('should return 400 wrong password', async () => {
@@ -74,14 +71,11 @@ describe("Auth Routes", () => {
                 .set('Accept', 'application/json')
                 .expect('Content-Type', /json/)
                 .expect(400)
-
         });
     });
 
     describe('POST /v1/auth/login', function () {
-
         it('return 404 user not found', async () => {
-
             const res = await request(app)
                 .post('/v1/auth/login')
                 .send({ email: "someotheremail@gmail.com", password: "somepass" })
@@ -93,7 +87,6 @@ describe("Auth Routes", () => {
         });
 
         it('return 400 user found but not verified', async () => {
-
             const user = await userModel.create({
                 fullName: { firstName: "testF", lastName: "testL" },
                 email: "testregister@gmail.com",
@@ -111,7 +104,6 @@ describe("Auth Routes", () => {
         });
 
         it('return 400 password does not match', async () => {
-
             const user = await userModel.create({
                 fullName: { firstName: "testF", lastName: "testL" },
                 email: "testregister@gmail.com",
@@ -130,7 +122,6 @@ describe("Auth Routes", () => {
         });
 
         it('return 200 user login', async () => {
-
             const user = await userModel.create({
                 fullName: { firstName: "testF", lastName: "testL" },
                 email: "testregister@gmail.com",
@@ -147,11 +138,9 @@ describe("Auth Routes", () => {
 
             expect(res.body.data.message).toBe("User login successfully")
         });
-
     })
 
     describe('GET /v1/auth/verify-email', function () {
-
         it('return 400 token not found', async () => {
             const res = await request(app)
                 .get('/v1/auth/verify-email')
@@ -163,7 +152,6 @@ describe("Auth Routes", () => {
         });
 
         it('return 404 invalid token', async () => {
-
             const user = await userModel.create({
                 fullName: { firstName: "testF", lastName: "testL" },
                 email: "testregister@gmail.com",
@@ -204,7 +192,6 @@ describe("Auth Routes", () => {
         });
 
         it('return 200 user verified', async () => {
-
             const user = await userModel.create({
                 fullName: { firstName: "testF", lastName: "testL" },
                 email: "testregister@gmail.com",
@@ -225,7 +212,6 @@ describe("Auth Routes", () => {
         });
 
         it('return 400 invalid token', async () => {
-
             const user = await userModel.create({
                 fullName: { firstName: "testF", lastName: "testL" },
                 email: "testregister@gmail.com",
@@ -272,7 +258,6 @@ describe("Auth Routes", () => {
                 .post('/v1/auth/logout')
                 .expect('Content-Type', /json/)
                 .expect(401)
-
         });
     });
 
@@ -289,7 +274,6 @@ describe("Auth Routes", () => {
         });
 
         it('should return 200 forget password link send successfully', async () => {
-
             const user = await userModel.create({
                 fullName: { firstName: "testF", lastName: "testL" },
                 email: "test@gmail.com",
@@ -305,7 +289,6 @@ describe("Auth Routes", () => {
 
             expect(res.body.data.message).toBe("Password reset link sent successfully")
         });
-
     });
 
     describe('POST /v1/auth/reset-password', function () {
@@ -347,7 +330,6 @@ describe("Auth Routes", () => {
                 password: await bcrypt.hash("Here89#1", 10),
                 resetToken: "resettoken",
                 resetTokenExpiry: new Date(Date.now() + 24 * 60 * 60 * 1000),
-
             })
 
             const res = await request(app)
