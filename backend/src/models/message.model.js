@@ -17,6 +17,10 @@ const messageSchema = new mongoose.Schema({
         enum: ["user", "ai"],
         required: true,
         default: "user"
+    },
+    embedding: {
+        type: [Number],
+        required: false
     }
 }, {
     timestamps: true
