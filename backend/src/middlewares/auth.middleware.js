@@ -1,20 +1,27 @@
 import jwt from "jsonwebtoken"
-import userModel from "../models/user.model.js"
 import { JWT_SECRET } from "../../config/index.js"
 
 const authSystem = async (req, res, next) => {
     const cookie = req.cookies["token"]
 
-    try {
-        const decoded = jwt.verify(cookie, JWT_SECRET)
-        req.decoded = decoded
-    } catch (err) {
+    if (!cookie) {
+        const err = new Error("Unauthorized: No token provided")
         err.statusCode = 401
         return next(err)
     }
 
+    try {
+        const decoded = jwt.verify(cookie, JWT_SECRET)
+        req.decoded = decoded
+    } catch (err) {
+        const error = new Error("Unauthorized: Invalid or expired token")
+        error.statusCode = 401
+        return next(error)
+    }
+
     const { id, role } = req.decoded
     req.user = { id, role }
+
     next()
 }
 
@@ -22,15 +29,17 @@ const requireRole = (roles) => {
     return (req, res, next) => {
         try {
             const { role } = req.user
-            let checkingRole = roles.includes(role)
+
+            const checkingRole = roles.includes(role)
+
             if (checkingRole) {
-                next()
+                return next()
             }
-            else {
-                const err = new Error("Unauthorized role")
-                err.statusCode = 403
-                next(err)
-            }
+
+            const err = new Error("Forbidden: Access denied")
+            err.statusCode = 403
+            next(err)
+
         } catch (err) {
             next(err)
         }
