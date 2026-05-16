@@ -35,6 +35,7 @@
     "nodemailer": "^8.0.7",
     "passport": "^0.7.0",
     "passport-google-oauth20": "^2.0.0",
+    "sarvamai": "^1.1.7",
     "winston": "^3.19.0",
     "zod": "^4.3.6"
   },
