@@ -1,10 +1,13 @@
 import { GoogleGenAI } from "@google/genai"
 import { logger } from "../utils/logger.js"
 import messageModel from "../models/message.model.js"
+import { GEMINI_API_KEY } from "../../config/index.js"
 
 async function createEmbedding(text) {
     try {
-        const ai = new GoogleGenAI({})
+        const ai = new GoogleGenAI({
+            apiKey: GEMINI_API_KEY
+        })
 
         const response = await ai.models.embedContent({
             model: 'gemini-embedding-2',
@@ -33,7 +36,18 @@ async function searchKnowledgeBase(embedding, chatId) {
                     limit: 5,
                     filter: { chatId: chatId }
                 }
-            }
+            },
+            {
+                $addFields: {
+                    score: { $meta: "vectorSearchScore" }
+                }
+            },
+            {
+                $match: {
+                    score: { $gte: 0.75 }
+                }
+            },
+
         ]);
 
         return results
