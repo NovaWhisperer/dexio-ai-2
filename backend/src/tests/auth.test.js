@@ -10,10 +10,12 @@ import crypto from "crypto"
 const TEST_PASSWORD = crypto.randomBytes(12).toString("hex")
 const WRONG_PASSWORD = crypto.randomBytes(12).toString("hex")
 const SHORT_PASSWORD = crypto.randomBytes(2).toString("hex")
+const TEST_EMAIL = `test.${crypto.randomBytes(4).toString("hex")}@example.com`
+const NOT_FOUND_EMAIL = `notfound.${crypto.randomBytes(4).toString("hex")}@example.com`
 
 const TEST_USER = {
     fullName: { firstName: "Test", lastName: "User" },
-    email: "test.user@example.com",
+    email: TEST_EMAIL,
     password: TEST_PASSWORD
 }
 
@@ -87,7 +89,7 @@ describe("Auth Routes", () => {
         it('return 404 user not found', async () => {
             const res = await request(app)
                 .post('/v1/auth/login')
-                .send({ email: "notfound.user@example.com", password: TEST_PASSWORD })
+                .send({ email: NOT_FOUND_EMAIL, password: TEST_PASSWORD })
                 .set('Accept', 'application/json')
                 .expect('Content-Type', /json/)
                 .expect(404)
@@ -273,7 +275,7 @@ describe("Auth Routes", () => {
         it('should return 200 user not found', async () => {
             const res = await request(app)
                 .post('/v1/auth/forgot-password')
-                .send({ email: "notfound.user@example.com" })
+                .send({ email: NOT_FOUND_EMAIL })
                 .set('Accept', 'application/json')
                 .expect('Content-Type', /json/)
                 .expect(200)
