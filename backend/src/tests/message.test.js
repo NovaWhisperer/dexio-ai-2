@@ -9,11 +9,18 @@ import chatModel from "../models/chat.model.js"
 import mongoose from "mongoose"
 import messageModel from "../models/message.model.js"
 import { generateChatTitle, generateResponse } from "../services/ai.service.js"
+import { createEmbedding } from "../services/vector.service.js"
+
 
 jest.mock("../services/ai.service.js", () => ({
     __esModule: true,
     generateResponse: jest.fn(),
     generateChatTitle: jest.fn(),
+}));
+
+jest.mock("../services/vector.service.js", () => ({
+    __esModule: true,
+    createEmbedding: jest.fn(),
 }));
 
 
@@ -41,6 +48,7 @@ afterEach(async () => {
 beforeEach(async () => {
     generateResponse.mockResolvedValue("This is a mock AI response")
     generateChatTitle.mockResolvedValue("Mock Chat Title")
+    createEmbedding.mockResolvedValue([])
 })
 
 afterAll(async () => {

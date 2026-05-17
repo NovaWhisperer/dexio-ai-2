@@ -1,6 +1,7 @@
 import chatModel from "../models/chat.model.js"
 import messageModel from "../models/message.model.js"
 import { generateChatTitle, generateResponse } from "../services/ai.service.js"
+import { createEmbedding } from "../services/vector.service.js"
 
 const messageCreateController = async (req, res, next) => {
     try {
@@ -18,6 +19,10 @@ const messageCreateController = async (req, res, next) => {
         }
 
         const message = await messageModel.create({ chatId, messageContent })
+
+        const newembedding = await createEmbedding(message.messageContent)
+
+        await messageModel.findByIdAndUpdate(message._id, { $set: { embedding: newembedding } })
 
         if (await messageModel.countDocuments({ chatId }) === 1) {
             const updatedTitle = await generateChatTitle(message.messageContent)
