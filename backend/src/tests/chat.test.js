@@ -7,6 +7,15 @@ import { JWT_SECRET } from "../../config/index.js"
 import jwt from "jsonwebtoken"
 import chatModel from "../models/chat.model.js"
 import mongoose from "mongoose"
+import crypto from "crypto"
+
+const TEST_PASSWORD = crypto.randomBytes(12).toString("hex")
+
+const TEST_USER = {
+    fullName: { firstName: "Test", lastName: "User" },
+    email: "test.user@example.com",
+    password: TEST_PASSWORD
+}
 
 let token = null
 let id = null
@@ -15,9 +24,9 @@ beforeAll(async () => {
     await db.connect()
 
     const user = await userModel.create({
-        fullName: { firstName: "testF", lastName: "testL" },
-        email: "testregister@gmail.com",
-        password: await bcrypt.hash("Here89#1", 10),
+        fullName: TEST_USER.fullName,
+        email: TEST_USER.email,
+        password: await bcrypt.hash(TEST_PASSWORD, 10),
         role: "user"
     })
 
