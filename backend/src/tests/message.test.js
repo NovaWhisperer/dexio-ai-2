@@ -10,7 +10,15 @@ import mongoose from "mongoose"
 import messageModel from "../models/message.model.js"
 import { generateChatTitle, generateResponse } from "../services/ai.service.js"
 import { createEmbedding } from "../services/vector.service.js"
+import crypto from "crypto"
 
+const TEST_PASSWORD = crypto.randomBytes(12).toString("hex")
+
+const TEST_USER = {
+    fullName: { firstName: "Test", lastName: "User" },
+    email: "test.user@example.com",
+    password: TEST_PASSWORD
+}
 
 jest.mock("../services/ai.service.js", () => ({
     __esModule: true,
@@ -31,9 +39,9 @@ beforeAll(async () => {
     await db.connect()
 
     const user = await userModel.create({
-        fullName: { firstName: "testF", lastName: "testL" },
-        email: "testregister@gmail.com",
-        password: await bcrypt.hash("Here89#1", 10),
+        fullName: TEST_USER.fullName,
+        email: TEST_USER.email,
+        password: await bcrypt.hash(TEST_PASSWORD, 10),
         role: "user"
     })
 
@@ -87,7 +95,6 @@ describe("Message Routes", () => {
             expect(res.body.error).toBe("Chat not found")
         });
 
-
         it('return 401 for no cookie', async () => {
             const res = await request(app)
                 .post('/v1/message/create')
@@ -98,12 +105,12 @@ describe("Message Routes", () => {
     });
 
     describe('GET /v1/message/read/:chatId', function () {
-        it('return 200 message created', async () => {
+        it('return 200 messages fetched', async () => {
             const chats = await chatModel.create({ userId: id })
 
             const chatId = chats._id
 
-            const messages = await messageModel.create({ chatId, messageContent: "message 1" })
+            await messageModel.create({ chatId, messageContent: "message 1" })
 
             const res = await request(app)
                 .get(`/v1/message/read/${chatId}`)
@@ -139,7 +146,7 @@ describe("Message Routes", () => {
     });
 
     describe('PATCH /v1/message/update/:id', function () {
-        it('return 200 message created', async () => {
+        it('return 200 message updated', async () => {
             const chats = await chatModel.create({ userId: id })
 
             const chatId = chats._id
@@ -156,7 +163,7 @@ describe("Message Routes", () => {
             expect(res.body.data.message).toBe("Message updated successfully")
         });
 
-        it('return 404 chat not found', async () => {
+        it('return 404 message not found', async () => {
             const fakeId = new mongoose.Types.ObjectId();
 
             const res = await request(app)
@@ -181,7 +188,7 @@ describe("Message Routes", () => {
     });
 
     describe('DELETE /v1/message/delete/:id', function () {
-        it('return 200 message created', async () => {
+        it('return 200 message deleted', async () => {
             const chats = await chatModel.create({ userId: id })
 
             const chatId = chats._id
@@ -198,7 +205,7 @@ describe("Message Routes", () => {
             expect(res.body.data.message).toBe("Message deleted successfully")
         });
 
-        it('return 404 chat not found', async () => {
+        it('return 404 message not found', async () => {
             const fakeId = new mongoose.Types.ObjectId();
 
             const res = await request(app)
