@@ -8,6 +8,14 @@ import jwt from "jsonwebtoken"
 import chatModel from "../models/chat.model.js"
 import mongoose from "mongoose"
 import messageModel from "../models/message.model.js"
+import { generateChatTitle, generateResponse } from "../services/ai.service.js"
+
+jest.mock("../services/ai.service.js", () => ({
+    __esModule: true,
+    generateResponse: jest.fn(),
+    generateChatTitle: jest.fn(),
+}));
+
 
 let token = null
 let id = null
@@ -30,6 +38,11 @@ afterEach(async () => {
     await db.clear()
 })
 
+beforeEach(async () => {
+    generateResponse.mockResolvedValue("This is a mock AI response")
+    generateChatTitle.mockResolvedValue("Mock Chat Title")
+})
+
 afterAll(async () => {
     await db.disconnect()
 })
@@ -49,6 +62,7 @@ describe("Message Routes", () => {
                 .expect('Content-Type', /json/)
                 .expect(201)
 
+            expect(res.body.data.response).toBe("This is a mock AI response")
             expect(res.body.data.message).toBe("Message created successfully")
         });
 
