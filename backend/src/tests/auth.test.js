@@ -7,6 +7,16 @@ import { JWT_SECRET } from "../../config/index.js"
 import jwt from "jsonwebtoken"
 import crypto from "crypto"
 
+const TEST_PASSWORD = crypto.randomBytes(12).toString("hex")
+const WRONG_PASSWORD = crypto.randomBytes(12).toString("hex")
+const SHORT_PASSWORD = crypto.randomBytes(2).toString("hex")
+
+const TEST_USER = {
+    fullName: { firstName: "Test", lastName: "User" },
+    email: "test.user@example.com",
+    password: TEST_PASSWORD
+}
+
 jest.mock("../services/email.service.js", () => ({
     __esModule: true,
     default: jest.fn(),
@@ -29,7 +39,7 @@ describe("Auth Routes", () => {
         it('should return 201 register user', async () => {
             const res = await request(app)
                 .post('/v1/auth/register')
-                .send({ fullName: { firstName: "testF", lastName: "testL" }, email: "test@gmail.com", password: "Here89#1" })
+                .send({ fullName: TEST_USER.fullName, email: TEST_USER.email, password: TEST_PASSWORD })
                 .set('Accept', 'application/json')
                 .expect('Content-Type', /json/)
                 .expect(201)
@@ -38,16 +48,15 @@ describe("Auth Routes", () => {
         });
 
         it('should return 409 email exists', async () => {
-            const res1 = await request(app)
+            await request(app)
                 .post('/v1/auth/register')
-                .send({ fullName: { firstName: "testF", lastName: "testL" }, email: "test@gmail.com", password: "Here89#1" })
+                .send({ fullName: TEST_USER.fullName, email: TEST_USER.email, password: TEST_PASSWORD })
                 .set('Accept', 'application/json')
-                .expect('Content-Type', /json/)
                 .expect(201)
 
             const res2 = await request(app)
                 .post('/v1/auth/register')
-                .send({ fullName: { firstName: "testF", lastName: "testL" }, email: "test@gmail.com", password: "Here89#1" })
+                .send({ fullName: TEST_USER.fullName, email: TEST_USER.email, password: TEST_PASSWORD })
                 .set('Accept', 'application/json')
                 .expect('Content-Type', /json/)
                 .expect(409)
@@ -58,16 +67,16 @@ describe("Auth Routes", () => {
         it('should return 400 missing field', async () => {
             const res = await request(app)
                 .post('/v1/auth/register')
-                .send({ fullName: { firstName: "testF", lastName: "testL" }, password: "Here89#1" })
+                .send({ fullName: TEST_USER.fullName, password: TEST_PASSWORD })
                 .set('Accept', 'application/json')
                 .expect('Content-Type', /json/)
                 .expect(400)
         });
 
-        it('should return 400 wrong password', async () => {
+        it('should return 400 wrong password format', async () => {
             const res = await request(app)
                 .post('/v1/auth/register')
-                .send({ fullName: { firstName: "testF", lastName: "testL" }, email: "test@gmail.com", password: "Here891" })
+                .send({ fullName: TEST_USER.fullName, email: TEST_USER.email, password: SHORT_PASSWORD })
                 .set('Accept', 'application/json')
                 .expect('Content-Type', /json/)
                 .expect(400)
@@ -78,7 +87,7 @@ describe("Auth Routes", () => {
         it('return 404 user not found', async () => {
             const res = await request(app)
                 .post('/v1/auth/login')
-                .send({ email: "someotheremail@gmail.com", password: "somepass" })
+                .send({ email: "notfound.user@example.com", password: TEST_PASSWORD })
                 .set('Accept', 'application/json')
                 .expect('Content-Type', /json/)
                 .expect(404)
@@ -88,14 +97,14 @@ describe("Auth Routes", () => {
 
         it('return 400 user found but not verified', async () => {
             const user = await userModel.create({
-                fullName: { firstName: "testF", lastName: "testL" },
-                email: "testregister@gmail.com",
-                password: await bcrypt.hash("Here89#1", 10),
+                fullName: TEST_USER.fullName,
+                email: TEST_USER.email,
+                password: await bcrypt.hash(TEST_PASSWORD, 10),
             })
 
             const res = await request(app)
                 .post('/v1/auth/login')
-                .send({ email: user.email, password: "Here89#1" })
+                .send({ email: user.email, password: TEST_PASSWORD })
                 .set('Accept', 'application/json')
                 .expect('Content-Type', /json/)
                 .expect(400)
@@ -104,16 +113,16 @@ describe("Auth Routes", () => {
         });
 
         it('return 400 password does not match', async () => {
-            const user = await userModel.create({
-                fullName: { firstName: "testF", lastName: "testL" },
-                email: "testregister@gmail.com",
-                password: await bcrypt.hash("Here89#1", 10),
+            await userModel.create({
+                fullName: TEST_USER.fullName,
+                email: TEST_USER.email,
+                password: await bcrypt.hash(TEST_PASSWORD, 10),
                 verified: true
             })
 
             const res = await request(app)
                 .post('/v1/auth/login')
-                .send({ email: "testregister@gmail.com", password: "Wrong89#1" })
+                .send({ email: TEST_USER.email, password: WRONG_PASSWORD })
                 .set('Accept', 'application/json')
                 .expect('Content-Type', /json/)
                 .expect(400)
@@ -123,15 +132,15 @@ describe("Auth Routes", () => {
 
         it('return 200 user login', async () => {
             const user = await userModel.create({
-                fullName: { firstName: "testF", lastName: "testL" },
-                email: "testregister@gmail.com",
-                password: await bcrypt.hash("Here89#1", 10),
+                fullName: TEST_USER.fullName,
+                email: TEST_USER.email,
+                password: await bcrypt.hash(TEST_PASSWORD, 10),
                 verified: true
             })
 
             const res = await request(app)
                 .post('/v1/auth/login')
-                .send({ email: user.email, password: "Here89#1" })
+                .send({ email: user.email, password: TEST_PASSWORD })
                 .set('Accept', 'application/json')
                 .expect('Content-Type', /json/)
                 .expect(200)
@@ -152,18 +161,18 @@ describe("Auth Routes", () => {
         });
 
         it('return 404 invalid token', async () => {
-            const user = await userModel.create({
-                fullName: { firstName: "testF", lastName: "testL" },
-                email: "testregister@gmail.com",
-                password: await bcrypt.hash("Here89#1", 10),
+            await userModel.create({
+                fullName: TEST_USER.fullName,
+                email: TEST_USER.email,
+                password: await bcrypt.hash(TEST_PASSWORD, 10),
                 verified: false,
                 verificationTokenExpiry: new Date(Date.now() + 24 * 60 * 60 * 1000),
-                verificationToken: "testtoken123"
+                verificationToken: "validtesttoken"
             })
 
             const res = await request(app)
                 .get('/v1/auth/verify-email')
-                .query({ token: "wrongtoken123" })
+                .query({ token: "wrongtesttoken" })
                 .set('Accept', 'application/json')
                 .expect('Content-Type', /json/)
                 .expect(404)
@@ -172,18 +181,18 @@ describe("Auth Routes", () => {
         });
 
         it('return 400 verified true', async () => {
-            const user = await userModel.create({
-                fullName: { firstName: "testF", lastName: "testL" },
-                email: "testregister@gmail.com",
-                password: await bcrypt.hash("Here89#1", 10),
+            await userModel.create({
+                fullName: TEST_USER.fullName,
+                email: TEST_USER.email,
+                password: await bcrypt.hash(TEST_PASSWORD, 10),
                 verified: true,
                 verificationTokenExpiry: new Date(Date.now() + 24 * 60 * 60 * 1000),
-                verificationToken: "testtoken123"
+                verificationToken: "validtesttoken"
             })
 
             const res = await request(app)
                 .get('/v1/auth/verify-email')
-                .query({ token: "testtoken123" })
+                .query({ token: "validtesttoken" })
                 .set('Accept', 'application/json')
                 .expect('Content-Type', /json/)
                 .expect(400)
@@ -192,18 +201,18 @@ describe("Auth Routes", () => {
         });
 
         it('return 200 user verified', async () => {
-            const user = await userModel.create({
-                fullName: { firstName: "testF", lastName: "testL" },
-                email: "testregister@gmail.com",
-                password: await bcrypt.hash("Here89#1", 10),
+            await userModel.create({
+                fullName: TEST_USER.fullName,
+                email: TEST_USER.email,
+                password: await bcrypt.hash(TEST_PASSWORD, 10),
                 verified: false,
                 verificationTokenExpiry: new Date(Date.now() + 24 * 60 * 60 * 1000),
-                verificationToken: "testtoken123"
+                verificationToken: "validtesttoken"
             })
 
             const res = await request(app)
                 .get('/v1/auth/verify-email')
-                .query({ token: "testtoken123" })
+                .query({ token: "validtesttoken" })
                 .set('Accept', 'application/json')
                 .expect('Content-Type', /json/)
                 .expect(200)
@@ -211,19 +220,19 @@ describe("Auth Routes", () => {
             expect(res.body.data.message).toBe("User email verified successfully")
         });
 
-        it('return 400 invalid token', async () => {
-            const user = await userModel.create({
-                fullName: { firstName: "testF", lastName: "testL" },
-                email: "testregister@gmail.com",
-                password: await bcrypt.hash("Here89#1", 10),
+        it('return 400 token expired', async () => {
+            await userModel.create({
+                fullName: TEST_USER.fullName,
+                email: TEST_USER.email,
+                password: await bcrypt.hash(TEST_PASSWORD, 10),
                 verified: false,
                 verificationTokenExpiry: new Date(Date.now() - 24 * 60 * 60 * 1000),
-                verificationToken: "testtoken123"
+                verificationToken: "validtesttoken"
             })
 
             const res = await request(app)
                 .get('/v1/auth/verify-email')
-                .query({ token: "testtoken123" })
+                .query({ token: "validtesttoken" })
                 .set('Accept', 'application/json')
                 .expect('Content-Type', /json/)
                 .expect(400)
@@ -235,9 +244,9 @@ describe("Auth Routes", () => {
     describe('POST /v1/auth/logout', function () {
         it('return 200 user logout', async () => {
             const user = await userModel.create({
-                fullName: { firstName: "testF", lastName: "testL" },
-                email: "testregister@gmail.com",
-                password: await bcrypt.hash("Here89#1", 10),
+                fullName: TEST_USER.fullName,
+                email: TEST_USER.email,
+                password: await bcrypt.hash(TEST_PASSWORD, 10),
                 role: "user"
             })
 
@@ -245,7 +254,6 @@ describe("Auth Routes", () => {
 
             const res = await request(app)
                 .post('/v1/auth/logout')
-                .send({ email: user.email, password: "Here89#1" })
                 .set('Cookie', `token=${token}`)
                 .expect('Content-Type', /json/)
                 .expect(200)
@@ -265,7 +273,7 @@ describe("Auth Routes", () => {
         it('should return 200 user not found', async () => {
             const res = await request(app)
                 .post('/v1/auth/forgot-password')
-                .send({ email: "testnotfound@gmail.com" })
+                .send({ email: "notfound.user@example.com" })
                 .set('Accept', 'application/json')
                 .expect('Content-Type', /json/)
                 .expect(200)
@@ -273,16 +281,16 @@ describe("Auth Routes", () => {
             expect(res.body.data.message).toBe("Password reset link sent successfully")
         });
 
-        it('should return 200 forget password link send successfully', async () => {
-            const user = await userModel.create({
-                fullName: { firstName: "testF", lastName: "testL" },
-                email: "test@gmail.com",
-                password: await bcrypt.hash("Here89#1", 10)
+        it('should return 200 forgot password link sent successfully', async () => {
+            await userModel.create({
+                fullName: TEST_USER.fullName,
+                email: TEST_USER.email,
+                password: await bcrypt.hash(TEST_PASSWORD, 10)
             })
 
             const res = await request(app)
                 .post('/v1/auth/forgot-password')
-                .send({ email: "test@gmail.com" })
+                .send({ email: TEST_USER.email })
                 .set('Accept', 'application/json')
                 .expect('Content-Type', /json/)
                 .expect(200)
@@ -295,27 +303,27 @@ describe("Auth Routes", () => {
         it('should return 400 invalid token', async () => {
             const res = await request(app)
                 .post('/v1/auth/reset-password')
-                .send({ password: "resetpass123" })
-                .query({ token: "wrongtoken123" })
+                .send({ password: TEST_PASSWORD })
+                .query({ token: "wrongresettoken" })
                 .expect('Content-Type', /json/)
                 .expect(400)
 
             expect(res.body.error).toBe("Invalid token")
         });
 
-        it('should return 400 reset expiry time exceeded ', async () => {
-            const user = await userModel.create({
-                fullName: { firstName: "testF", lastName: "testL" },
-                email: "test@gmail.com",
-                password: await bcrypt.hash("Here89#1", 10),
-                resetToken: "resettoken",
+        it('should return 400 reset expiry time exceeded', async () => {
+            await userModel.create({
+                fullName: TEST_USER.fullName,
+                email: TEST_USER.email,
+                password: await bcrypt.hash(TEST_PASSWORD, 10),
+                resetToken: "validresettoken",
                 resetTokenExpiry: new Date(Date.now() - 24 * 60 * 60 * 1000),
             })
 
             const res = await request(app)
                 .post('/v1/auth/reset-password')
-                .send({ password: "resetpass123" })
-                .query({ token: "resettoken" })
+                .send({ password: WRONG_PASSWORD })
+                .query({ token: "validresettoken" })
                 .set('Accept', 'application/json')
                 .expect('Content-Type', /json/)
                 .expect(400)
@@ -324,18 +332,18 @@ describe("Auth Routes", () => {
         });
 
         it('should return 200 password reset successfully', async () => {
-            const user = await userModel.create({
-                fullName: { firstName: "testF", lastName: "testL" },
-                email: "test@gmail.com",
-                password: await bcrypt.hash("Here89#1", 10),
-                resetToken: "resettoken",
+            await userModel.create({
+                fullName: TEST_USER.fullName,
+                email: TEST_USER.email,
+                password: await bcrypt.hash(TEST_PASSWORD, 10),
+                resetToken: "validresettoken",
                 resetTokenExpiry: new Date(Date.now() + 24 * 60 * 60 * 1000),
             })
 
             const res = await request(app)
                 .post('/v1/auth/reset-password')
-                .send({ password: "resetpass123" })
-                .query({ token: "resettoken" })
+                .send({ password: WRONG_PASSWORD })
+                .query({ token: "validresettoken" })
                 .set('Accept', 'application/json')
                 .expect('Content-Type', /json/)
                 .expect(200)
@@ -344,5 +352,3 @@ describe("Auth Routes", () => {
         });
     });
 })
-
-
