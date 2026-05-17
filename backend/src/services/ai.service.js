@@ -48,7 +48,7 @@ async function generateResponse(messageContent, chatId) {
             ]
         });
 
-        const generatedText = response.choices[0].message.content;
+        let generatedText = response.choices[0].message.content;
 
         generatedText = generatedText.replace(/<think>[\s\S]*?<\/think>/gi, "").trim()
 
@@ -60,4 +60,38 @@ async function generateResponse(messageContent, chatId) {
     }
 }
 
-export { generateResponse }
+
+async function generateChatTitle(messageContent) {
+    try {
+
+        const client = new SarvamAIClient({
+            apiSubscriptionKey: SARVAM_API_KEY
+        });
+
+        const response = await client.chat.completions({
+            model: "sarvam-m",
+            messages: [
+                {
+                    "role": "system",
+                    "content": "Generate a short 3-5 word title for a chat conversation based on the user's first message. Reply with ONLY the title — no quotes, no punctuation at the end, no explanation."
+                },
+                {
+                    "role": "user",
+                    "content": messageContent
+                }
+            ]
+        });
+
+        let generatedTitle = response.choices[0].message.content;
+
+        generatedTitle = generatedTitle.replace(/<think>[\s\S]*?<\/think>/gi, "").trim()
+
+        return generatedTitle;
+
+    } catch (err) {
+        logger.error(err)
+        throw err
+    }
+}
+
+export { generateResponse, generateChatTitle }

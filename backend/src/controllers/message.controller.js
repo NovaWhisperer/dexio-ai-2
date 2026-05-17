@@ -1,5 +1,6 @@
 import chatModel from "../models/chat.model.js"
 import messageModel from "../models/message.model.js"
+import { generateChatTitle, generateResponse } from "../services/ai.service.js"
 
 const messageCreateController = async (req, res, next) => {
     try {
@@ -16,11 +17,21 @@ const messageCreateController = async (req, res, next) => {
             })
         }
 
-        await messageModel.create({ chatId, messageContent })
+        const message = await messageModel.create({ chatId, messageContent })
+
+        if (await messageModel.countDocuments({ chatId }) === 1) {
+            const updatedTitle = await generateChatTitle(message.messageContent)
+
+            await chatModel.findOneAndUpdate({ _id: chatId }, { chatName: updatedTitle })
+        }
+
+        const response = await generateResponse(message.messageContent, message.chatId)
+
+        await messageModel.create({ chatId, messageContent: response, role: "ai" })
 
         res.status(201).json({
             success: true,
-            data: { message: "Message created successfully" },
+            data: { message: "Message created successfully", response },
             error: null
         })
 
