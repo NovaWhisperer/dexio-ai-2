@@ -2,7 +2,6 @@ import mongoose from "mongoose";
 import { MONGO_URI } from "../../config/index.js";
 import { logger } from "../utils/logger.js";
 
-
 async function connectDB() {
     try {
         await mongoose.connect(MONGO_URI)
@@ -14,7 +13,3 @@ async function connectDB() {
 }
 
 export default connectDB
-
-
-
-
