@@ -1,3 +1,4 @@
+import "./instrument.js"
 import app from "./src/app.js"
 import { PORT } from "./config/index.js"
 import { logger } from "./src/utils/logger.js"

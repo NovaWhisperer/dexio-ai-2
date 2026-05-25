@@ -25,6 +25,7 @@
   },
   "dependencies": {
     "@google/genai": "^2.3.0",
+    "@sentry/node": "^10.53.1",
     "bcryptjs": "^3.0.3",
     "cookie-parser": "^1.4.7",
     "csrf-csrf": "^4.0.3",

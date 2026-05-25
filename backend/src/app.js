@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/node";
 import express from "express"
 import { errorHandler } from "./middlewares/errorHandler.middleware.js"
 import morgan from "morgan"
@@ -47,6 +48,8 @@ app.get("/health", (req, res) => {
 app.use("/v1/auth", authRoutes)
 app.use("/v1/chat", chatRoutes)
 app.use("/v1/message", messageRoutes)
+
+Sentry.setupExpressErrorHandler(app);
 
 app.use((req, res, next) => {
     const defaultError = Error("Route not found")
