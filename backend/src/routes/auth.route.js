@@ -1,16 +1,15 @@
 import express, { Router } from "express"
-
 import { registerController, loginController, logoutController, verifyEmailController, googleController, googleCallbackController, forgotPasswordController, resetPasswordController } from "../controllers/auth.controller.js"
 import { validateRequest } from "../middlewares/validation.middleware.js"
 import { forgotPasswordSchema, loginSchema, registerSchema, resetPasswordSchema } from "../schemas/auth.schema.js"
 import { authSystem } from "../middlewares/auth.middleware.js"
 import passport from "../../config/google.strategy.js"
-import limiter from "../middlewares/rateLimiter.middleware.js"
+import { authLimiter } from "../middlewares/rateLimiter.middleware.js"
 import { NODE_ENV } from "../../config/index.js"
 
 const router = express.Router()
 
-if (NODE_ENV !== "testing") { router.use(limiter) }
+if (NODE_ENV !== "testing") { router.use(authLimiter) }
 
 
 /**

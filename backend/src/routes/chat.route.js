@@ -1,8 +1,12 @@
 import express from "express"
 import { authSystem } from "../middlewares/auth.middleware.js"
 import { chatCreateController, chatDeleteController, chatReadController, chatUpdateController } from "../controllers/chat.controller.js"
+import { chatLimiter } from "../middlewares/rateLimiter.middleware.js"
+import { NODE_ENV } from "../../config/index.js"
 
 const router = express.Router()
+
+if (NODE_ENV !== "testing") { router.use(chatLimiter) }
 
 /**
  * @openapi

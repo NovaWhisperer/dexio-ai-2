@@ -1,8 +1,12 @@
 import express from "express"
 import { authSystem } from "../middlewares/auth.middleware.js"
 import { messageCreateController, messageDeleteController, messageReadController, messageUpdateController } from "../controllers/message.controller.js"
+import { messageLimiter } from "../middlewares/rateLimiter.middleware.js"
+import { NODE_ENV } from "../../config/index.js"
 
 const router = express.Router()
+
+if (NODE_ENV !== "testing") { router.use(messageLimiter) }
 
 /**
  * @openapi
@@ -30,7 +34,7 @@ const router = express.Router()
  *       404:
  *         description: "Chat not found"
  */
-router.post("/create",authSystem,messageCreateController)
+router.post("/create", authSystem, messageCreateController)
 
 /**
  * @openapi
@@ -52,7 +56,7 @@ router.post("/create",authSystem,messageCreateController)
  *       404:
  *         description: "Chat not found"
  */
-router.get("/read/:chatId",authSystem,messageReadController)
+router.get("/read/:chatId", authSystem, messageReadController)
 
 /**
  * @openapi
@@ -87,7 +91,7 @@ router.get("/read/:chatId",authSystem,messageReadController)
  *       400:
  *         description: "Message not found"
  */
-router.patch("/update/:id",authSystem,messageUpdateController)
+router.patch("/update/:id", authSystem, messageUpdateController)
 
 /**
  * @openapi
@@ -119,6 +123,6 @@ router.patch("/update/:id",authSystem,messageUpdateController)
  *       404:
  *         description: "Message not found"
  */
-router.delete("/delete/:id",authSystem,messageDeleteController)
+router.delete("/delete/:id", authSystem, messageDeleteController)
 
 export default router
