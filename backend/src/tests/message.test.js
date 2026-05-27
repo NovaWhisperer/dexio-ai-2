@@ -10,7 +10,9 @@ import mongoose from "mongoose"
 import messageModel from "../models/message.model.js"
 import { generateChatTitle, generateResponse } from "../services/ai.service.js"
 import { createEmbedding } from "../services/vector.service.js"
+import { client } from "../db/redis.js"
 import crypto from "crypto"
+
 
 const TEST_PASSWORD = crypto.randomBytes(12).toString("hex")
 
@@ -29,6 +31,13 @@ jest.mock("../services/ai.service.js", () => ({
 jest.mock("../services/vector.service.js", () => ({
     __esModule: true,
     createEmbedding: jest.fn(),
+}));
+
+jest.mock("../db/redis.js", () => ({
+    __esModule: true,
+    client: {
+        exists: jest.fn(),
+    }
 }));
 
 

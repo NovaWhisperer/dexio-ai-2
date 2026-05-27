@@ -8,6 +8,7 @@ import jwt from "jsonwebtoken"
 import chatModel from "../models/chat.model.js"
 import mongoose from "mongoose"
 import crypto from "crypto"
+import { client } from "../db/redis.js"
 
 const TEST_PASSWORD = crypto.randomBytes(12).toString("hex")
 
@@ -16,6 +17,13 @@ const TEST_USER = {
     email: "test.user@example.com",
     password: TEST_PASSWORD
 }
+
+jest.mock("../db/redis.js", () => ({
+    __esModule: true,
+    client: {
+        exists: jest.fn(),
+    }
+})); 
 
 let token = null
 let id = null
@@ -32,6 +40,8 @@ beforeAll(async () => {
 
     id = user._id
     token = jwt.sign({ id: user._id, role: user.role }, JWT_SECRET, { expiresIn: "7d" })
+    
+    client.exists.mockResolvedValue(0)
 })
 
 afterEach(async () => {

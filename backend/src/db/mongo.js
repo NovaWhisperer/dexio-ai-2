@@ -5,7 +5,7 @@ import { logger } from "../utils/logger.js";
 async function connectDB() {
     try {
         await mongoose.connect(MONGO_URI)
-        logger.info("Connected to DB")
+        logger.info("Connected to MONGO DB")
     } catch (error) {
         logger.error(error)
         process.exit(1)

@@ -6,6 +6,7 @@ import jwt from "jsonwebtoken"
 import { JWT_SECRET, NODE_ENV } from "../../config/index.js"
 import cookie from "cookie-parser"
 import passport from "passport"
+import { client } from "../db/redis.js"
 
 
 const registerController = async (req, res, next) => {
@@ -159,6 +160,14 @@ const loginController = async (req, res, next) => {
 
 const logoutController = async (req, res, next) => {
     try {
+        const token = req.cookies.token
+
+        const decoded = jwt.verify(token, JWT_SECRET)
+
+        const ttl = Math.floor(decoded.exp - (Date.now() / 1000))
+
+        await client.set(token, "valid", { EX: ttl })
+
         res.clearCookie("token")
 
         return res.status(200).json({

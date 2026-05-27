@@ -6,6 +6,7 @@ import bcrypt from "bcryptjs"
 import { JWT_SECRET } from "../../config/index.js"
 import jwt from "jsonwebtoken"
 import crypto from "crypto"
+import { client } from "../db/redis.js"
 
 const TEST_PASSWORD = crypto.randomBytes(12).toString("hex")
 const WRONG_PASSWORD = crypto.randomBytes(12).toString("hex")
@@ -24,8 +25,17 @@ jest.mock("../services/email.service.js", () => ({
     default: jest.fn(),
 }));
 
+jest.mock("../db/redis.js", () => ({
+    __esModule: true,
+    client: {
+        exists: jest.fn(),
+        set: jest.fn()
+    }
+}));
+
 beforeAll(async () => {
     await db.connect()
+    client.exists.mockResolvedValue(0)
 })
 
 afterEach(async () => {
@@ -261,6 +271,27 @@ describe("Auth Routes", () => {
                 .expect(200)
 
             expect(res.body.data.message).toBe("User logout successfully")
+        });
+
+        it('return 401 token blacklisted', async () => {
+
+            client.exists.mockResolvedValue(1)
+
+            const user = await userModel.create({
+                fullName: TEST_USER.fullName,
+                email: TEST_USER.email,
+                password: await bcrypt.hash(TEST_PASSWORD, 10),
+                role: "user"
+            })
+
+            const token = jwt.sign({ id: user._id, role: user.role }, JWT_SECRET, { expiresIn: "7d" })
+
+            const res = await request(app)
+                .get('/v1/chat/read')
+                .set('Cookie', `token=${token}`)
+                .expect('Content-Type', /json/)
+                .expect(401)
+
         });
 
         it('return 401 for no cookie', async () => {

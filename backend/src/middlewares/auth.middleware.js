@@ -1,5 +1,6 @@
 import jwt from "jsonwebtoken"
 import { JWT_SECRET } from "../../config/index.js"
+import { client } from "../db/redis.js"
 
 const authSystem = async (req, res, next) => {
     const cookie = req.cookies["token"]
@@ -12,6 +13,15 @@ const authSystem = async (req, res, next) => {
 
     try {
         const decoded = jwt.verify(cookie, JWT_SECRET)
+
+        const value = await client.exists(cookie)
+
+        if (value === 1) {
+            const error = new Error("Unauthorized: Invalid or expired token")
+            error.statusCode = 401
+            return next(error)
+        }
+
         req.decoded = decoded
     } catch (err) {
         const error = new Error("Unauthorized: Invalid or expired token")
