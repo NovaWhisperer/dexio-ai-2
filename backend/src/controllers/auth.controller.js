@@ -7,6 +7,7 @@ import { JWT_SECRET, NODE_ENV } from "../../config/index.js"
 import cookie from "cookie-parser"
 import passport from "passport"
 import { client } from "../db/redis.js"
+import userAnalyticsModel from "../models/userAnalytics.model.js"
 
 
 const registerController = async (req, res, next) => {
@@ -41,10 +42,13 @@ const registerController = async (req, res, next) => {
             verificationTokenExpiry
         })
 
+        await userAnalyticsModel.create({ userId: user._id, })
+
         try {
             await sendMailer(email, "Verify your email", `http://localhost:3000/v1/auth/verify-email?token=${verificationToken}`)
         } catch (err) {
             await userModel.deleteOne({ email })
+            await userAnalyticsModel.deleteOne({ userId: user._id, })
             return next(err)
         }
 

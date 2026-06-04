@@ -7,6 +7,7 @@ import { JWT_SECRET } from "../../config/index.js"
 import jwt from "jsonwebtoken"
 import crypto from "crypto"
 import { client } from "../db/redis.js"
+import userAnalyticsModel from "../models/userAnalytics.model.js"
 
 const TEST_PASSWORD = crypto.randomBytes(12).toString("hex")
 const WRONG_PASSWORD = crypto.randomBytes(12).toString("hex")
@@ -93,6 +94,25 @@ describe("Auth Routes", () => {
                 .expect('Content-Type', /json/)
                 .expect(400)
         });
+
+        it('should create userAnalytics document on registration', async () => {
+            const res = await request(app)
+                .post('/v1/auth/register')
+                .send({ fullName: TEST_USER.fullName, email: TEST_USER.email, password: TEST_PASSWORD })
+                .set('Accept', 'application/json')
+                .expect('Content-Type', /json/)
+                .expect(201)
+
+            const user = await userModel.findOne({ email: TEST_USER.email })
+            const userId = user._id
+
+            const userAnalytics = await userAnalyticsModel.findOne({ userId })
+
+            expect(userAnalytics.chatCount).toBe(0)
+            expect(userAnalytics.messageCount).toBe(0)
+        });
+
+
     });
 
     describe('POST /v1/auth/login', function () {

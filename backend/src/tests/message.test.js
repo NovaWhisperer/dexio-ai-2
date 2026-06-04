@@ -12,6 +12,7 @@ import { generateChatTitle, generateResponse } from "../services/ai.service.js"
 import { createEmbedding } from "../services/vector.service.js"
 import { client } from "../db/redis.js"
 import crypto from "crypto"
+import userAnalyticsModel from "../models/userAnalytics.model.js"
 
 
 const TEST_PASSWORD = crypto.randomBytes(12).toString("hex")
@@ -110,6 +111,25 @@ describe("Message Routes", () => {
                 .expect('Content-Type', /json/)
 
             expect(res.status).toBe(401)
+        });
+
+        it('should update userAnalytics document on message Creation', async () => {
+            await userAnalyticsModel.create({ userId: id })
+
+            const chats = await chatModel.create({ userId: id })
+
+            const chatId = chats._id
+
+            const res = await request(app)
+                .post('/v1/message/create')
+                .send({ chatId, messageContent: "Hello, how are you" })
+                .set('Cookie', `token=${token}`)
+                .expect('Content-Type', /json/)
+                .expect(201)
+
+            const userAnalytics = await userAnalyticsModel.findOne({ userId: id })
+
+            expect(userAnalytics.messageCount).toBe(1)
         });
     });
 

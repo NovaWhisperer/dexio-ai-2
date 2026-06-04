@@ -1,10 +1,13 @@
 import chatModel from "../models/chat.model.js"
 import messageModel from "../models/message.model.js"
+import userAnalyticsModel from "../models/userAnalytics.model.js"
 
 const chatCreateController = async (req, res, next) => {
     try {
         const { id } = req.user
         await chatModel.create({ userId: id })
+
+        await userAnalyticsModel.findOneAndUpdate({ userId: id }, { $inc: { chatCount: 1 }, $set: { lastActiveAt: Date.now() } })
 
         res.status(201).json({
             success: true,

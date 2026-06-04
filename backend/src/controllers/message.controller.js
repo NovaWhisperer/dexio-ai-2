@@ -1,5 +1,6 @@
 import chatModel from "../models/chat.model.js"
 import messageModel from "../models/message.model.js"
+import userAnalyticsModel from "../models/userAnalytics.model.js"
 import { generateChatTitle, generateResponse } from "../services/ai.service.js"
 import { createEmbedding } from "../services/vector.service.js"
 
@@ -33,6 +34,8 @@ const messageCreateController = async (req, res, next) => {
         const response = await generateResponse(message.messageContent, message.chatId)
 
         await messageModel.create({ chatId, messageContent: response, role: "ai" })
+
+        await userAnalyticsModel.findOneAndUpdate({ userId: id }, { $inc: { messageCount: 1 }, $set: { lastActiveAt: Date.now() } })
 
         res.status(201).json({
             success: true,

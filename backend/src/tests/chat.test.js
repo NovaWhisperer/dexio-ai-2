@@ -9,6 +9,7 @@ import chatModel from "../models/chat.model.js"
 import mongoose from "mongoose"
 import crypto from "crypto"
 import { client } from "../db/redis.js"
+import userAnalyticsModel from "../models/userAnalytics.model.js"
 
 const TEST_PASSWORD = crypto.randomBytes(12).toString("hex")
 
@@ -23,7 +24,7 @@ jest.mock("../db/redis.js", () => ({
     client: {
         exists: jest.fn(),
     }
-})); 
+}));
 
 let token = null
 let id = null
@@ -40,7 +41,7 @@ beforeAll(async () => {
 
     id = user._id
     token = jwt.sign({ id: user._id, role: user.role }, JWT_SECRET, { expiresIn: "7d" })
-    
+
     client.exists.mockResolvedValue(0)
 })
 
@@ -72,6 +73,20 @@ describe("Chat Routes", () => {
                 .expect('Content-Type', /json/)
 
             expect(res.status).toBe(401)
+        });
+
+        it('should update userAnalytics document on chat Creation', async () => {
+            await userAnalyticsModel.create({ userId: id })
+
+            const res = await request(app)
+                .post('/v1/chat/create')
+                .set('Cookie', `token=${token}`)
+                .expect('Content-Type', /json/)
+                .expect(201)
+
+            const userAnalytics = await userAnalyticsModel.findOne({ userId: id })
+
+            expect(userAnalytics.chatCount).toBe(1)
         });
     });
 
