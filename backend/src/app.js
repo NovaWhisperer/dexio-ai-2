@@ -9,6 +9,7 @@ import helmet from "helmet"
 import passport from "../config/google.strategy.js"
 import chatRoutes from "./routes/chat.route.js"
 import messageRoutes from "./routes/message.route.js"
+import analyticsRoutes from "./routes/analytics.route.js"
 import { doubleCsrfProtection, generateCsrfToken } from "./middlewares/csrf.middleware.js"
 import { NODE_ENV } from "../config/index.js"
 import swaggerUi from 'swagger-ui-express';
@@ -48,6 +49,7 @@ app.get("/health", (req, res) => {
 app.use("/v1/auth", authRoutes)
 app.use("/v1/chat", chatRoutes)
 app.use("/v1/message", messageRoutes)
+app.use("/v1/analytics", analyticsRoutes)
 
 Sentry.setupExpressErrorHandler(app);
 
