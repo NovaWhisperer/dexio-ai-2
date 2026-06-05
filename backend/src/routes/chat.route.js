@@ -1,12 +1,19 @@
-import express from "express"
-import { authSystem } from "../middlewares/auth.middleware.js"
-import { chatCreateController, chatDeleteController, chatReadController, chatUpdateController } from "../controllers/chat.controller.js"
-import { chatLimiter } from "../middlewares/rateLimiter.middleware.js"
-import { NODE_ENV } from "../../config/index.js"
+import express from "express";
+import { authSystem } from "../middlewares/auth.middleware.js";
+import {
+  chatCreateController,
+  chatDeleteController,
+  chatReadController,
+  chatUpdateController,
+} from "../controllers/chat.controller.js";
+import { chatLimiter } from "../middlewares/rateLimiter.middleware.js";
+import { NODE_ENV } from "../../config/index.js";
 
-const router = express.Router()
+const router = express.Router();
 
-if (NODE_ENV !== "testing") { router.use(chatLimiter) }
+if (NODE_ENV !== "testing") {
+  router.use(chatLimiter);
+}
 
 /**
  * @openapi
@@ -17,9 +24,9 @@ if (NODE_ENV !== "testing") { router.use(chatLimiter) }
  *       - cookieAuth: []
  *     responses:
  *       201:
- *         description: "Chat created successfully" 
+ *         description: "Chat created successfully"
  */
-router.post("/create", authSystem, chatCreateController)
+router.post("/create", authSystem, chatCreateController);
 
 /**
  * @openapi
@@ -32,7 +39,7 @@ router.post("/create", authSystem, chatCreateController)
  *       200:
  *         description: "Chats fetched successfully"
  */
-router.get("/read", authSystem, chatReadController)
+router.get("/read", authSystem, chatReadController);
 
 /**
  * @openapi
@@ -60,11 +67,11 @@ router.get("/read", authSystem, chatReadController)
  *       - cookieAuth: []
  *     responses:
  *       200:
- *         description: "Chat name updated successfully" 
+ *         description: "Chat name updated successfully"
  *       400:
  *         description:"ChatId is wrong"
  */
-router.patch("/update/:id", authSystem, chatUpdateController)
+router.patch("/update/:id", authSystem, chatUpdateController);
 
 /**
  * @openapi
@@ -86,6 +93,6 @@ router.patch("/update/:id", authSystem, chatUpdateController)
  *       400:
  *         description:"ChatId is wrong"
  */
-router.delete("/delete/:id", authSystem, chatDeleteController)
+router.delete("/delete/:id", authSystem, chatDeleteController);
 
-export default router
+export default router;

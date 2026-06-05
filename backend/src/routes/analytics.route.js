@@ -1,8 +1,8 @@
-import express from "express"
-import { userAnalyticsController } from "../controllers/analytics.controller.js"
-import { authSystem, requireRole } from "../middlewares/auth.middleware.js"
+import express from "express";
+import { userAnalyticsController } from "../controllers/analytics.controller.js";
+import { authSystem, requireRole } from "../middlewares/auth.middleware.js";
 
-const router = express.Router()
+const router = express.Router();
 
 /**
  * @openapi
@@ -28,7 +28,11 @@ const router = express.Router()
  *       200:
  *         description: "User analytics data fetched successfully"
  */
-router.get("/:userId", authSystem, requireRole(["admin"]), userAnalyticsController)
+router.get(
+  "/:userId",
+  authSystem,
+  requireRole(["admin"]),
+  userAnalyticsController,
+);
 
-
-export default router
+export default router;

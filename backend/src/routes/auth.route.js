@@ -1,19 +1,34 @@
-import express, { Router } from "express"
-import { registerController, loginController, logoutController, verifyEmailController, googleController, googleCallbackController, forgotPasswordController, resetPasswordController } from "../controllers/auth.controller.js"
-import { validateRequest } from "../middlewares/validation.middleware.js"
-import { forgotPasswordSchema, loginSchema, registerSchema, resetPasswordSchema } from "../schemas/auth.schema.js"
-import { authSystem } from "../middlewares/auth.middleware.js"
-import passport from "../../config/google.strategy.js"
-import { authLimiter } from "../middlewares/rateLimiter.middleware.js"
-import { NODE_ENV } from "../../config/index.js"
+import express, { Router } from "express";
+import {
+  registerController,
+  loginController,
+  logoutController,
+  verifyEmailController,
+  googleController,
+  googleCallbackController,
+  forgotPasswordController,
+  resetPasswordController,
+} from "../controllers/auth.controller.js";
+import { validateRequest } from "../middlewares/validation.middleware.js";
+import {
+  forgotPasswordSchema,
+  loginSchema,
+  registerSchema,
+  resetPasswordSchema,
+} from "../schemas/auth.schema.js";
+import { authSystem } from "../middlewares/auth.middleware.js";
+import passport from "../../config/google.strategy.js";
+import { authLimiter } from "../middlewares/rateLimiter.middleware.js";
+import { NODE_ENV } from "../../config/index.js";
 
-const router = express.Router()
+const router = express.Router();
 
-if (NODE_ENV !== "testing") { router.use(authLimiter) }
-
+if (NODE_ENV !== "testing") {
+  router.use(authLimiter);
+}
 
 /**
- * @openapi 
+ * @openapi
  * /v1/auth/register:
  *   post:
  *     summary: register user
@@ -42,10 +57,10 @@ if (NODE_ENV !== "testing") { router.use(authLimiter) }
  *       409:
  *         description: "Email already exists"
  */
-router.post("/register", validateRequest(registerSchema), registerController)
+router.post("/register", validateRequest(registerSchema), registerController);
 
 /**
- * @openapi 
+ * @openapi
  * /v1/auth/login:
  *   post:
  *     summary: login user
@@ -70,7 +85,7 @@ router.post("/register", validateRequest(registerSchema), registerController)
  *       400:
  *         description: "User not registered or Invalid password"
  */
-router.post("/login", validateRequest(loginSchema), loginController)
+router.post("/login", validateRequest(loginSchema), loginController);
 
 /**
  * @openapi
@@ -81,15 +96,15 @@ router.post("/login", validateRequest(loginSchema), loginController)
  *       - cookieAuth: []
  *     responses:
  *       200:
- *         description: "User logout successfully" 
+ *         description: "User logout successfully"
  */
-router.post("/logout", authSystem, logoutController)
+router.post("/logout", authSystem, logoutController);
 
 /**
- * @openapi 
+ * @openapi
  * /v1/auth/forgot-password:
  *   post:
- *     summary: forgot password 
+ *     summary: forgot password
  *     requestBody:
  *       required: true
  *       content:
@@ -102,10 +117,13 @@ router.post("/logout", authSystem, logoutController)
  *                 example: "test@test.com"
  *     responses:
  *       200:
- *         description: "Password reset link sent successfully" 
+ *         description: "Password reset link sent successfully"
  */
-router.post("/forgot-password", validateRequest(forgotPasswordSchema), forgotPasswordController)
-
+router.post(
+  "/forgot-password",
+  validateRequest(forgotPasswordSchema),
+  forgotPasswordController,
+);
 
 /**
  * @openapi
@@ -131,14 +149,18 @@ router.post("/forgot-password", validateRequest(forgotPasswordSchema), forgotPas
  *                 example: "testtest"
  *     responses:
  *       200:
- *         description: Password reset successfully
+ *         description: "Password reset successfully"
  *       400:
- *         description: Invalid token or reset token expired
+ *         description: "Invalid token or reset token expired"
  */
-router.post("/reset-password", validateRequest(resetPasswordSchema), resetPasswordController)
+router.post(
+  "/reset-password",
+  validateRequest(resetPasswordSchema),
+  resetPasswordController,
+);
 
 /**
- * @openapi 
+ * @openapi
  * /v1/auth/verify-email:
  *   get:
  *     summary: verify email
@@ -157,7 +179,7 @@ router.post("/reset-password", validateRequest(resetPasswordSchema), resetPasswo
  *       400:
  *         description: "Token not found or User already verified or Token had expired. Register again"
  */
-router.get("/verify-email", verifyEmailController)
+router.get("/verify-email", verifyEmailController);
 
 /**
  * @openapi
@@ -166,21 +188,25 @@ router.get("/verify-email", verifyEmailController)
  *     summary: Initiate Google OAuth login
  *     responses:
  *       302:
- *         description: Redirects to Google login page
+ *         description: "Redirects to Google login page"
  */
-router.get("/google", googleController)
+router.get("/google", googleController);
 
 /**
- * @openapi 
+ * @openapi
  * /v1/auth/google/callback:
  *   get:
  *     summary: google callback
  *     responses:
  *       200:
- *         description: "User verified successfully" 
+ *         description: "User verified successfully"
  *       401:
  *         description: "Authentication failed"
  */
-router.get("/google/callback", passport.authenticate("google"), googleCallbackController)
+router.get(
+  "/google/callback",
+  passport.authenticate("google"),
+  googleCallbackController,
+);
 
-export default router
+export default router;
