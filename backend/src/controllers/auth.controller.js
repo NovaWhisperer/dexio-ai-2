@@ -192,7 +192,7 @@ const logoutController = async (req, res, next) => {
 
 const forgotPasswordController = async (req, res, next) => {
   try {
-    const { email } = req.body;
+    const { email } = req.data;
 
     const user = await userModel.findOne({ email });
     if (!user) {
