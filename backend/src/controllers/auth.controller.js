@@ -270,7 +270,11 @@ const resetPasswordController = async (req, res, next) => {
 };
 
 const googleController = async (req, res, next) => {
-  passport.authenticate("google", { scope: ["profile"] })(req, res, next);
+  passport.authenticate("google", { scope: ["profile", "email"] })(
+    req,
+    res,
+    next,
+  );
 };
 
 const googleCallbackController = async (req, res, next) => {
