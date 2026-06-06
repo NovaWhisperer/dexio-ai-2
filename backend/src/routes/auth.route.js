@@ -173,11 +173,11 @@ router.post(
  *         description: "Email verification token"
  *     responses:
  *       200:
- *         description: "User email verified successfully"
+ *         description: "User email verified successfully or User already verified"
  *       404:
  *         description: "Invalid Token"
  *       400:
- *         description: "Token not found or User already verified or Token had expired. Register again"
+ *         description: "Token not found or Token had expired. Register again"
  */
 router.get("/verify-email", verifyEmailController);
 
