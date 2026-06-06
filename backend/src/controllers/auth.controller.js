@@ -4,7 +4,6 @@ import crypto from "crypto";
 import sendMailer from "../services/email.service.js";
 import jwt from "jsonwebtoken";
 import { JWT_SECRET, NODE_ENV } from "../../config/index.js";
-import cookie from "cookie-parser";
 import passport from "passport";
 import { client } from "../db/redis.js";
 import userAnalyticsModel from "../models/userAnalytics.model.js";
