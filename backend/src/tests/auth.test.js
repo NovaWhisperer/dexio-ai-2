@@ -8,6 +8,7 @@ import jwt from "jsonwebtoken";
 import crypto from "crypto";
 import { client } from "../db/redis.js";
 import userAnalyticsModel from "../models/userAnalytics.model.js";
+import sendMailer from "../services/email.service.js";
 
 const TEST_PASSWORD = crypto.randomBytes(12).toString("hex");
 const WRONG_PASSWORD = crypto.randomBytes(12).toString("hex");
@@ -130,6 +131,28 @@ describe("Auth Routes", () => {
 
       expect(userAnalytics.chatCount).toBe(0);
       expect(userAnalytics.messageCount).toBe(0);
+    });
+
+    it("should delete the user and userAnalytics records when sendMailer returns an error.", async () => {
+      sendMailer.mockImplementationOnce(() => {
+        throw new Error("Some error");
+      });
+
+      const res = await request(app)
+        .post("/v1/auth/register")
+        .send({
+          fullName: TEST_USER.fullName,
+          email: TEST_USER.email,
+          password: TEST_PASSWORD,
+        })
+        .set("Accept", "application/json")
+        .expect("Content-Type", /json/);
+
+      const user = await userModel.findOne({ email: TEST_USER.email });
+      const userAnalytics = await userAnalyticsModel.findOne({});
+
+      expect(user).toBe(null);
+      expect(userAnalytics).toBe(null);
     });
   });
 

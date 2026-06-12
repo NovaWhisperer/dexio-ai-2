@@ -17,6 +17,7 @@ const sendMailer = async (to, subject, html) => {
     logger.info(info);
   } catch (err) {
     logger.error(err);
+    throw err;
   }
 };
 

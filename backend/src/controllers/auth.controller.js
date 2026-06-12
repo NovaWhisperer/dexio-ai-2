@@ -3,7 +3,7 @@ import bcrypt from "bcryptjs";
 import crypto from "crypto";
 import sendMailer from "../services/email.service.js";
 import jwt from "jsonwebtoken";
-import { JWT_SECRET, NODE_ENV } from "../../config/index.js";
+import { BASE_URL, JWT_SECRET, NODE_ENV } from "../../config/index.js";
 import passport from "passport";
 import { client } from "../db/redis.js";
 import userAnalyticsModel from "../models/userAnalytics.model.js";
@@ -45,7 +45,7 @@ const registerController = async (req, res, next) => {
       await sendMailer(
         email,
         "Verify your email",
-        `http://localhost:3000/v1/auth/verify-email?token=${verificationToken}`,
+        `${BASE_URL}/v1/auth/verify-email?token=${verificationToken}`,
       );
     } catch (err) {
       await userModel.deleteOne({ email });
@@ -215,7 +215,7 @@ const forgotPasswordController = async (req, res, next) => {
     await sendMailer(
       email,
       "Reset your password",
-      `http://localhost:3000/v1/auth/reset-password?token=${resetToken}`,
+      `${BASE_URL}/v1/auth/reset-password?token=${resetToken}`,
     );
 
     return res.status(200).json({
